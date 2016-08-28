@@ -1,9 +1,5 @@
 [
     {
-        "merged": "C:\\Users\\Foam\\Documents\\GitHub\\DroneXP\\Android\\dJISDKLIB\\build\\intermediates\\res\\merged\\androidTest\\debug\\xml\\accessory_filter.xml",
-        "source": "C:\\Users\\Foam\\Documents\\GitHub\\DroneXP\\Android\\dJISDKLIB\\build\\intermediates\\bundles\\debug\\res\\xml\\accessory_filter.xml"
-    },
-    {
         "merged": "C:\\Users\\Foam\\Documents\\GitHub\\Android-FPVDemo\\FPVDemo\\dJISDKLIB\\build\\intermediates\\res\\merged\\androidTest\\debug\\xml\\accessory_filter.xml",
         "source": "C:\\Users\\Foam\\Documents\\GitHub\\Android-FPVDemo\\FPVDemo\\dJISDKLIB\\build\\intermediates\\bundles\\debug\\res\\xml\\accessory_filter.xml"
     }
