@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
     <TextView
         android:id="@+id/text_connection_status"
         android:layout_width="wrap_content"
@@ -16,6 +17,7 @@
         android:layout_alignBottom="@+id/text_product_info"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="89dp" />
+
     <TextView
         android:id="@+id/text_product_info"
         android:layout_width="wrap_content"
@@ -28,6 +30,7 @@
         android:gravity="center"
         android:textStyle="bold"
         />
+
     <Button
         android:id="@+id/btn_open"
         android:layout_width="150dp"
@@ -39,6 +42,16 @@
         android:textColor="@color/colorWhite"
         android:textSize="20dp"
         />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="430dp"
+        android:text="@string/sdk_version"
+        android:textSize="15dp"
+        android:id="@+id/textView2" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -51,4 +64,5 @@
         android:textColor="@color/colorBlack"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

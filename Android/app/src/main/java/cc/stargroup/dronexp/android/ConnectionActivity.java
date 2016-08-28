@@ -8,11 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,13 +18,17 @@ import dji.sdk.Products.DJIAircraft;
 import dji.sdk.base.DJIBaseProduct;
 
 public class ConnectionActivity extends Activity implements View.OnClickListener {
+
     private static final String TAG = ConnectionActivity.class.getName();
+
     private TextView mTextConnectionStatus;
     private TextView mTextProduct;
     private Button mBtnOpen;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // When the compile and target version is higher than 22, please request the
         // following permissions at runtime to ensure the
         // SDK work well.
@@ -54,46 +54,55 @@ public class ConnectionActivity extends Activity implements View.OnClickListener
         filter.addAction(DroneXPApplication.FLAG_CONNECTION_CHANGE);
         registerReceiver(mReceiver, filter);
     }
+
     @Override
     public void onResume() {
         Log.e(TAG, "onResume");
         super.onResume();
     }
+
     @Override
     public void onPause() {
         Log.e(TAG, "onPause");
         super.onPause();
     }
+
     @Override
     public void onStop() {
         Log.e(TAG, "onStop");
         super.onStop();
     }
+
     public void onReturn(View view){
         Log.e(TAG, "onReturn");
         this.finish();
     }
 
-    private void initUI() {
-        mTextConnectionStatus = (TextView) findViewById(R.id.text_connection_status);
-        mTextProduct = (TextView) findViewById(R.id.text_product_info);
-        mBtnOpen = (Button) findViewById(R.id.btn_open);
-        mBtnOpen.setOnClickListener(this);
-        mBtnOpen.setEnabled(false);
-    }
-
-    protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            refreshSDKRelativeUI();
-        }
-    };
     @Override
     protected void onDestroy() {
         Log.e(TAG, "onDestroy");
         unregisterReceiver(mReceiver);
         super.onDestroy();
     }
+
+    private void initUI() {
+
+        mTextConnectionStatus = (TextView) findViewById(R.id.text_connection_status);
+        mTextProduct = (TextView) findViewById(R.id.text_product_info);
+        mBtnOpen = (Button) findViewById(R.id.btn_open);
+        mBtnOpen.setOnClickListener(this);
+        mBtnOpen.setEnabled(false);
+
+    }
+
+    protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refreshSDKRelativeUI();
+        }
+    };
+
     private void refreshSDKRelativeUI() {
         DJIBaseProduct mProduct = DroneXPApplication.getProductInstance();
 
@@ -119,9 +128,11 @@ public class ConnectionActivity extends Activity implements View.OnClickListener
         }
     }
 
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+
             case R.id.btn_open: {
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);

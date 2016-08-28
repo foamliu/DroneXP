@@ -155,4 +155,5 @@ public class DroneXPApplication extends Application {
             sendBroadcast(intent);
         }
     };
+
 }
