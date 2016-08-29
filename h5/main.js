@@ -27,15 +27,15 @@ if (hasUserMedia()) {
 
   },function(error){
     console.log(error);
-  })
+  });
 } else {
   alert("your browser does not support WebRTC.")
 }
 
 function startPeerConnection(stream) {
   var configuration = null;
-  yourConnection = new RTCPeerConnection(configuration);
-  theirConnection = new RTCPeerConnection(configuration);
+  yourConnection = new webkitRTCPeerConnection(configuration);
+  theirConnection = new webkitRTCPeerConnection(configuration);
 
   // Setup stream listening
   yourConnection.addStream(stream);
@@ -50,18 +50,18 @@ function startPeerConnection(stream) {
     }
   };
 
-  theirConnection.onicecandidate = function(event) {
+  theirConnection.onicecandidate = function (event) {
     if (event.candidate) {
       yourConnection.addIceCandidate(new RTCIceCandidate(event.candidate));
     }
   };
 
   // Begin the offer
-  yourConnection.createOffer(function(offer) {
+  yourConnection.createOffer(function (offer) {
     yourConnection.setLocalDescription(offer);
     theirConnection.setRemoteDescription(offer);
 
-    theirConnection.createAnswer(function(offer) {
+    theirConnection.createAnswer(function (offer) {
       theirConnection.setLocalDescription(offer);
       yourConnection.setRemoteDescription(offer);
     });

@@ -5,42 +5,59 @@
     <title>DroneXP</title>
 
     <style>
-      body {
-        background-color:#3D6DF2;
-        margin-top: 15px;
-      }
-      video {
-        background-color:black;
-        border: 1px solid gray;
-      }
-      #container {
-        position:relative;
-        display:block;
-        margin:0 auto;
-        width: 500px;
-        height: 500px;
-      }
-      #yours {
-        width: 150px;
-        height: 150px;
-        position: absolute;
-        top: 15px;
-        right: 15px
-      }
-      #theirs {
-        width:500px;
-        height:500px;
-      }
+    body {
+      background-color: #3D6DF2;
+      margin-top: 15px;
+      font-family: sans-serif;
+      color: white;
+    }
+
+    video {
+      background: black;
+      border: 1px solid gray;
+    }
+
+    .page {
+      position: relative;
+      display: block;
+      margin: 0 auto;
+      width: 500px;
+      height: 500px;
+    }
+
+    #yours {
+      width: 150px;
+      height: 150px;
+      position: absolute;
+      top: 15px;
+      right: 15px;
+    }
+
+    #theirs {
+      width: 500px;
+      height: 500px;
+    }
     </style>
   </head>
 
   <body>
-    <div id="container">
-      <video id="yours" autoplay></video>
-      <video id="theirs" autoplay></video>
+    <div id="login-page" class="page">
+      <h2>Login As</h2>
+      <input type="text" id="username" />
+      <button id="login">Login</button>
     </div>
 
-    <script src="main.js"></script>
+    <div id="call-page" class="page">
+      <video id="yours" autoplay></video>
+      <video id="theirs" autoplay></video>
+      <input type="text" id="their-username" />
+      <button id="call">Call</button>
+      <button id="hang-up">Hang Up</button>
+    </div>
+
+    <script src="adapter.js"></script>
+    <script src="common.js"></script>
+    <script src="client.js"></script>
 
   </body>
 </html>
