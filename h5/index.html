@@ -1,17 +1,46 @@
-<html>
-<head><title>live streaming</title></head>
-<body>
-<script src="jwplayer.js"></script>
-<script>jwplayer.key="YA9lbE9Kg6Aw5YNig7qRzhlb/mu0hkVm2z9zPQ==";</script>
-<div id='myElement'></div>
-<script type='text/javascript'>
-    var playerInstance = jwplayer("myElement");
-    playerInstance.setup({
-    file: "rtmp://stargroup.cc/live/mystream",
-    height: 360,
-    width: 640
-});
-</script>
-</body>
-</html>
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>DroneXP</title>
 
+    <style>
+      body {
+        background-color:#3D6DF2;
+        margin-top: 15px;
+      }
+      video {
+        background-color:black;
+        border: 1px solid gray;
+      }
+      #container {
+        position:relative;
+        display:block;
+        margin:0 auto;
+        width: 500px;
+        height: 500px;
+      }
+      #yours {
+        width: 150px;
+        height: 150px;
+        position: absolute;
+        top: 15px;
+        right: 15px
+      }
+      #theirs {
+        width:500px;
+        height:500px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="container">
+      <video id="yours" autoplay></video>
+      <video id="theirs" autoplay></video>
+    </div>
+
+    <script src="main.js"></script>
+
+  </body>
+</html>
