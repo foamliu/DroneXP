@@ -108,9 +108,7 @@ function startConnection() {
 }
 
 function setupPeerConnection(stream) {
-  var configuration = {
-    "iceServers": [{ "url": "stun:127.0.0.1:9876" }]
-  };
+  var configuration = null;
   yourConnection = new RTCPeerConnection(configuration, {optional: [{RtpDataChannels: true}]});
 
   // Setup stream listening
@@ -136,7 +134,7 @@ function openDataChannel() {
   var dataChannelOptions = {
     reliable: true
   };
-  dataChannel = yourConnection.createDataChannel("myLabel", dataChannelOptions);
+  dataChannel = theirConnection.createDataChannel("myLabel", dataChannelOptions);
 
   dataChannel.onerror = function (error) {
     console.log("Data Channel Error:", error);
