@@ -6,7 +6,11 @@ var options = {
   cert: fs.readFileSync('cert.pem')
 };
 
+var static = require('node-static');
+var fileServer = new static.Server('..');
+
 var a = https.createServer(options, function (req, res) {
-  res.writeHead(200);
-  res.end("hello world\n");
+  req.addListener('end', function () {
+      fileServer.serve(req, res);
+  }).resume();
 }).listen(8443);
