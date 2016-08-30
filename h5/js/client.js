@@ -134,7 +134,7 @@ function openDataChannel() {
   var dataChannelOptions = {
     reliable: true
   };
-  dataChannel = theirConnection.createDataChannel("myLabel", dataChannelOptions);
+  dataChannel = yourConnection.createDataChannel("myLabel", dataChannelOptions);
 
   dataChannel.onerror = function (error) {
     console.log("Data Channel Error:", error);
