@@ -1,7 +1,7 @@
 var name,
     connectedUser;
 
-var connection = new WebSocket('ws://localhost:8888');
+var connection = new WebSocket('ws://stargroup.cc:8888');
 
 connection.onopen = function () {
   console.log("Connected");
