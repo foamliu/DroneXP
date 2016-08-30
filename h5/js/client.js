@@ -1,4 +1,4 @@
-var connection = new WebSocket('ws://localhost:8888'),
+var connection = new WebSocket('ws://stargroup.cc:8888'),
     name = "";
 
 var loginPage = document.querySelector('#login-page'),
