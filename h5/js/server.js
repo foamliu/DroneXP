@@ -1,120 +1,244 @@
-var WebSocketServer = require('ws').Server,
-    wss = new WebSocketServer({ port: 8888 }),
-    users = {};
+var name,
+    connectedUser;
 
-wss.on('connection', function (connection) {
-  connection.on('message', function (message) {
-    var data;
+var connection = new WebSocket('ws://stargroup.cc:8888');
 
-    try {
-      data = JSON.parse(message);
-    } catch (e) {
-      console.log("Error parsing JSON");
-      data = {};
-    }
+connection.onopen = function () {
+  console.log("Connected");
+};
 
-    switch (data.type) {
-      case "login":
-        console.log("User logged in as", data.name);
-        if (users[data.name]) {
-          sendTo(connection, {
-            type: "login",
-            success: false
-          });
-        } else {
-          users[data.name] = connection;
-          connection.name = data.name;
-          sendTo(connection, {
-            type: "login",
-            success: true
-          });
-        }
+// Handle all messages through this callback
+connection.onmessage = function (message) {
+  console.log("Got message", message.data);
 
-        break;
-      case "offer":
-        console.log("Sending offer to", data.name);
-        var conn = users[data.name];
+  var data = JSON.parse(message.data);
 
-        if (conn != null) {
-          connection.otherName = data.name;
-          sendTo(conn, {
-            type: "offer",
-            offer: data.offer,
-            name: connection.name
-          });
-        }
+  switch(data.type) {
+    case "login":
+      onLogin(data.success);
+      break;
+    case "offer":
+      onOffer(data.offer, data.name);
+      break;
+    case "answer":
+      onAnswer(data.answer);
+      break;
+    case "candidate":
+      onCandidate(data.candidate);
+      break;
+    case "leave":
+      onLeave();
+      break;
+    default:
+      break;
+  }
+};
 
-        break;
-      case "answer":
-        console.log("Sending answer to", data.name);
-        var conn = users[data.name];
+connection.onerror = function (err) {
+  console.log("Got error", err);
+};
 
-        if (conn != null) {
-          connection.otherName = data.name;
-          sendTo(conn, {
-            type: "answer",
-            answer: data.answer
-          });
-        }
+// Alias for sending messages in JSON format
+function send(message) {
+  if (connectedUser) {
+    message.name = connectedUser;
+  }
 
-        break;
-      case "candidate":
-        console.log("Sending candidate to", data.name);
-        var conn = users[data.name];
+  connection.send(JSON.stringify(message));
+};
 
-        if (conn != null) {
-          sendTo(conn, {
-            type: "candidate",
-            candidate: data.candidate
-          });
-        }
+var loginPage = document.querySelector('#login-page'),
+    usernameInput = document.querySelector('#username'),
+    loginButton = document.querySelector('#login'),
+    callPage = document.querySelector('#call-page'),
+    theirUsernameInput = document.querySelector('#their-username'),
+    callButton = document.querySelector('#call'),
+    hangUpButton = document.querySelector('#hang-up'),
+    messageInput = document.querySelector('#message'),
+    sendButton = document.querySelector('#send'),
+    received = document.querySelector('#received');
 
-        break;
-      case "leave":
-        console.log("Disconnecting user from", data.name);
-        var conn = users[data.name];
-        conn.otherName = null;
+callPage.style.display = "none";
 
-        if (conn != null) {
-          sendTo(conn, {
-            type: "leave"
-          });
-        }
+// Login when the user clicks the button
+loginButton.addEventListener("click", function (event) {
+  name = usernameInput.value;
 
-        break;
-      default:
-        sendTo(connection, {
-          type: "error",
-          message: "Unrecognized command: " + data.type
-        });
-
-        break;
-    }
-  });
-
-  connection.on('close', function () {
-    if (connection.name) {
-      delete users[connection.name];
-
-      if (connection.otherName) {
-        console.log("Disconnecting user from", connection.otherName);
-        var conn = users[connection.otherName];
-        conn.otherName = null;
-
-        if (conn != null) {
-          sendTo(conn, {
-            type: "leave"
-          });
-        }
-      }
-    }
-  });
+  if (name.length > 0) {
+    send({
+      type: "login",
+      name: name
+    });
+  }
 });
 
-function sendTo(conn, message) {
-  conn.send(JSON.stringify(message));
+function onLogin(success) {
+  if (success === false) {
+    alert("Login unsuccessful, please try a different name.");
+  } else {
+    loginPage.style.display = "none";
+    callPage.style.display = "block";
+
+    // Get the plumbing ready for a call
+    startConnection();
+  }
+};
+
+var yourVideo = document.querySelector('#yours'),
+    theirVideo = document.querySelector('#theirs'),
+    yourConnection, connectedUser, stream, dataChannel;
+
+function startConnection() {
+  if (hasUserMedia()) {
+    navigator.getUserMedia({ video: true, audio: false }, function (myStream) {
+      stream = myStream;
+      yourVideo.src = window.URL.createObjectURL(stream);
+
+      if (hasRTCPeerConnection()) {
+        setupPeerConnection(stream);
+      } else {
+        alert("Sorry, your browser does not support WebRTC.");
+      }
+    }, function (error) {
+      console.log(error);
+    });
+  } else {
+    alert("Sorry, your browser does not support WebRTC.");
+  }
 }
 
-wss.on('listening', function () {
-    console.log("Server started...");
+function setupPeerConnection(stream) {
+  //var configuration = {
+  //  "iceServers": [{ "url": "stun:127.0.0.1:9876" }]
+  //};
+  var configuration = null;
+  yourConnection = new RTCPeerConnection(configuration, {optional: [{RtpDataChannels: true}]});
+
+  // Setup stream listening
+  yourConnection.addStream(stream);
+  yourConnection.onaddstream = function (e) {
+    theirVideo.src = window.URL.createObjectURL(e.stream);
+  };
+
+  // Setup ice handling
+  yourConnection.onicecandidate = function (event) {
+    if (event.candidate) {
+      send({
+        type: "candidate",
+        candidate: event.candidate
+      });
+    }
+  };
+
+  openDataChannel();
+}
+
+function openDataChannel() {
+  var dataChannelOptions = {
+    reliable: true
+  };
+  dataChannel = yourConnection.createDataChannel("myLabel", dataChannelOptions);
+
+  dataChannel.onerror = function (error) {
+    console.log("Data Channel Error:", error);
+  };
+
+  dataChannel.onmessage = function (event) {
+    console.log("Got Data Channel Message:", event.data);
+
+    received.innerHTML += event.data + "<br />";
+    received.scrollTop = received.scrollHeight;
+  };
+
+  dataChannel.onopen = function () {
+    dataChannel.send(name + " has connected.");
+  };
+
+  dataChannel.onclose = function () {
+    console.log("The Data Channel is Closed");
+  };
+}
+
+// Bind our text input and received area
+sendButton.addEventListener("click", function (event) {
+  var val = messageInput.value;
+  received.innerHTML += val + "<br />";
+  received.scrollTop = received.scrollHeight;
+  dataChannel.send(val);
 });
+
+function hasUserMedia() {
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+  return !!navigator.getUserMedia;
+}
+
+function hasRTCPeerConnection() {
+  window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+  window.RTCSessionDescription = window.RTCSessionDescription || window.webkitRTCSessionDescription || window.mozRTCSessionDescription;
+  window.RTCIceCandidate = window.RTCIceCandidate || window.webkitRTCIceCandidate || window.mozRTCIceCandidate;
+  return !!window.RTCPeerConnection;
+}
+
+callButton.addEventListener("click", function () {
+  var theirUsername = theirUsernameInput.value;
+
+  if (theirUsername.length > 0) {
+    startPeerConnection(theirUsername);
+  }
+});
+
+function startPeerConnection(user) {
+  connectedUser = user;
+
+  // Begin the offer
+  yourConnection.createOffer(function (offer) {
+    send({
+      type: "offer",
+      offer: offer
+    });
+    yourConnection.setLocalDescription(offer);
+  }, function (error) {
+    alert("An error has occurred.");
+  });
+};
+
+function onOffer(offer, name) {
+  connectedUser = name;
+  yourConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+  yourConnection.createAnswer(function (answer) {
+    yourConnection.setLocalDescription(answer);
+
+    send({
+      type: "answer",
+      answer: answer
+    });
+  }, function (error) {
+    alert("An error has occurred");
+  });
+};
+
+function onAnswer(answer) {
+  yourConnection.setRemoteDescription(new RTCSessionDescription(answer));
+};
+
+function onCandidate(candidate) {
+  yourConnection.addIceCandidate(new RTCIceCandidate(candidate));
+};
+
+hangUpButton.addEventListener("click", function () {
+  send({
+    type: "leave"
+  });
+
+  onLeave();
+});
+
+function onLeave() {
+  connectedUser = null;
+  theirVideo.src = null;
+  yourConnection.close();
+  yourConnection.onicecandidate = null;
+  yourConnection.onaddstream = null;
+  setupPeerConnection(stream);
+};
