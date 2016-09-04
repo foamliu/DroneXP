@@ -108,7 +108,9 @@ function startConnection() {
 }
 
 function setupPeerConnection(stream) {
-  var configuration = null;
+  var configuration = {
+    "iceServers": [{ "url": "stun:168.63.140.40:3478" }]
+  };
   yourConnection = new RTCPeerConnection(configuration, {optional: [{RtpDataChannels: true}]});
 
   // Setup stream listening
