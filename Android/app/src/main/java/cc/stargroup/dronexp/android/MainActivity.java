@@ -31,7 +31,7 @@ public class MainActivity extends Activity  {
 
     protected TextureView mLeftVideoSurface = null, mRightVideoSurface = null;
     private SurfaceTextureListener mLeftSurfaceListener, mRightSurfaceListener;
-    private SensorManager mSensorManager = new SensorManager(this);
+    private SensorManager mSensorManager;
 
     public DJIFlightController mFlightController;
     public DJIRemoteController mRemoteController;
@@ -107,6 +107,9 @@ public class MainActivity extends Activity  {
     @Override
     public void onResume() {
         logger.appendLog("onResume");
+        if (mSensorManager == null) {
+            mSensorManager = new SensorManager(this);
+        }
         mSensorManager.registerListener();
 
         super.onResume();
@@ -216,8 +219,9 @@ public class MainActivity extends Activity  {
 
         @Override
         public void run() {
-            mSensorManager.Sense();
-
+            if (mSensorManager != null) {
+                mSensorManager.Sense();
+            }
         }
     }
 }

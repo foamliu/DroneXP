@@ -34,7 +34,8 @@ public class SensorManager implements SensorEventListener {
 
     public void Sense() {
 
-        String str = String.format("Phone: azimut=%f pitch=%f roll=%f", orientation[0], orientation[1], orientation[2]);
+        String str = String.format("Phone: azimut=%f pitch=%f roll=%f", Math.toDegrees(orientation[0]), Math.toDegrees(orientation[1]), Math.toDegrees(orientation[2]));
+        str = str + " " + calculateOrientation();
         logger.appendLog(str);
         Log.i(TAG, str);
 
@@ -81,35 +82,36 @@ public class SensorManager implements SensorEventListener {
         mSensorManager.unregisterListener(this);
     }
 
-    private  void calculateOrientation() {
+    private String calculateOrientation() {
 
-        float azimut = orientation[0];
+        double azimut = Math.toDegrees(orientation[0]) ;
+        String result = "";
 
         if(azimut >= -5 && azimut < 5){
-            Log.i(TAG, "正北");
+            result = "正北";
         }
         else if(azimut >= 5 && azimut < 85){
-            Log.i(TAG, "东北");
+            result = "东北";
         }
         else if(azimut >= 85 && azimut <=95){
-            Log.i(TAG, "正东");
+            result = "正东";
         }
         else if(azimut >= 95 && azimut <175){
-            Log.i(TAG, "东南");
+            result = "东南";
         }
         else if((azimut >= 175 && azimut <= 180) || (azimut) >= -180 && azimut < -175){
-            Log.i(TAG, "正南");
+            result = "正南";
         }
         else if(azimut >= -175 && azimut <-95){
-            Log.i(TAG, "西南");
+            result = "西南";
         }
         else if(azimut >= -95 && azimut < -85){
-            Log.i(TAG, "正西");
+            result = "正西";
         }
         else if(azimut >= -85 && azimut <-5){
-            Log.i(TAG, "西北");
+            result = "西北";
         }
-
+        return result;
     }
 
     @Override
