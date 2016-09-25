@@ -107,7 +107,7 @@ public class MainActivity extends Activity  {
     @Override
     public void onResume() {
         logger.appendLog("onResume");
-        mSensorManager.Sense();
+        mSensorManager.registerListener();
 
         super.onResume();
     }
@@ -115,8 +115,8 @@ public class MainActivity extends Activity  {
     @Override
     public void onPause() {
         logger.appendLog("onPause");
-
         uninitPreviewer();
+        mSensorManager.unregisterListener();
         super.onPause();
     }
 
