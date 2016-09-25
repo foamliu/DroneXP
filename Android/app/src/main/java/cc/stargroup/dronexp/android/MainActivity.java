@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.TextureView;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Timer;
@@ -29,8 +30,8 @@ public class MainActivity extends Activity  {
     private Logger logger = new Logger();
     protected CameraReceivedVideoDataCallback mReceivedVideoDataCallBack = null;
 
-    protected TextureView mLeftVideoSurface = null, mRightVideoSurface = null;
-    private SurfaceTextureListener mLeftSurfaceListener, mRightSurfaceListener;
+    protected TextureView mVideoSurface = null;
+    private SurfaceTextureListener mSurfaceListener;
     private SensorManager mSensorManager;
 
     public DJIFlightController mFlightController;
@@ -46,26 +47,18 @@ public class MainActivity extends Activity  {
         initPermissions();
         setContentView(R.layout.activity_main);
 
-        mLeftSurfaceListener = new SurfaceTextureListener(this);
-        mRightSurfaceListener = new SurfaceTextureListener(this);
+        mSurfaceListener = new SurfaceTextureListener(this);
 
         // The callback for receiving the raw H264 video data for camera live view
         mReceivedVideoDataCallBack = new CameraReceivedVideoDataCallback() {
 
             @Override
             public void onResult(byte[] videoBuffer, int size) {
-                if (mLeftSurfaceListener.getCodecManager() != null) {
+                if (mSurfaceListener.getCodecManager() != null) {
                     // Send the raw H264 video data to codec manager for decoding
-                    mLeftSurfaceListener.getCodecManager().sendDataToDecoder(videoBuffer, size);
+                    mSurfaceListener.getCodecManager().sendDataToDecoder(videoBuffer, size);
                 } else {
-                    logger.appendLog("mLeftSurfaceListener.getCodecManager() is null");
-                }
-
-                if (mRightSurfaceListener.getCodecManager() != null) {
-                    // Send the raw H264 video data to codec manager for decoding
-                    mRightSurfaceListener.getCodecManager().sendDataToDecoder(videoBuffer, size);
-                } else {
-                    logger.appendLog("mRightSurfaceListener.getCodecManager() is null");
+                    logger.appendLog("mSurfaceListener.getCodecManager() is null");
                 }
             }
         };
@@ -147,8 +140,7 @@ public class MainActivity extends Activity  {
     private void initUI() {
         logger.appendLog("initUI");
         // initFlightController mVideoSurface
-        mLeftVideoSurface = (TextureView) findViewById(R.id.video_surface_left);
-        mRightVideoSurface = (TextureView) findViewById(R.id.video_surface_right);
+        mVideoSurface = (TextureView) findViewById(R.id.video_surface);
 
         setSurfaceListener();
     }
@@ -162,11 +154,8 @@ public class MainActivity extends Activity  {
     }
 
     private void setSurfaceListener() {
-        if (null != mLeftVideoSurface) {
-            mLeftVideoSurface.setSurfaceTextureListener(mLeftSurfaceListener);
-        }
-        if (null != mRightVideoSurface) {
-            mRightVideoSurface.setSurfaceTextureListener(mRightSurfaceListener);
+        if (null != mVideoSurface) {
+            mVideoSurface.setSurfaceTextureListener(mSurfaceListener);
         }
     }
 
@@ -206,6 +195,15 @@ public class MainActivity extends Activity  {
         runOnUiThread(new Runnable() {
             public void run() {
                 Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void showText(final String msg) {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                TextView textView = (TextView) findViewById(R.id.text_info);
+                textView.setText(msg);
             }
         });
     }

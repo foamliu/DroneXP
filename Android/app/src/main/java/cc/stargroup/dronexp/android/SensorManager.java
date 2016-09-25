@@ -36,7 +36,8 @@ public class SensorManager implements SensorEventListener {
 
         String str = String.format("Phone: azimut=%f pitch=%f roll=%f", Math.toDegrees(orientation[0]), Math.toDegrees(orientation[1]), Math.toDegrees(orientation[2]));
         str = str + " " + calculateOrientation();
-        logger.appendLog(str);
+        //logger.appendLog(str);
+        mActivity.showText(str);
         Log.i(TAG, str);
 
         if (mActivity.mFlightController != null) {
