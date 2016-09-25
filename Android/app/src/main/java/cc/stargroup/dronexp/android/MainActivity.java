@@ -1,233 +1,202 @@
 package cc.stargroup.dronexp.android;
 
+import android.Manifest;
 import android.app.Activity;
-import android.graphics.SurfaceTexture;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.ActivityCompat;
 import android.view.TextureView;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.TextureView.SurfaceTextureListener;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import dji.sdk.Camera.DJICamera;
 import dji.sdk.Camera.DJICamera.CameraReceivedVideoDataCallback;
-import dji.sdk.Codec.DJICodecManager;
-import dji.sdk.base.DJIBaseComponent.DJICompletionCallback;
-import dji.sdk.base.DJIBaseProduct;
-import dji.sdk.base.DJIBaseProduct.Model;
-import dji.sdk.base.DJIError;
-import dji.sdk.Camera.DJICameraSettingsDef.CameraMode;
-import dji.sdk.Camera.DJICameraSettingsDef.CameraShootPhotoMode;
+import dji.sdk.FlightController.DJIFlightController;
+import dji.sdk.Products.DJIAircraft;
+import dji.sdk.RemoteController.DJIRemoteController;
 
 
-public class MainActivity extends Activity implements TextureView.SurfaceTextureListener, OnClickListener {
+public class MainActivity extends Activity  {
 
     private static final String TAG = MainActivity.class.getName();
-    protected DJICamera.CameraReceivedVideoDataCallback mReceivedVideoDataCallBack = null;
+    private Logger logger = new Logger();
+    protected CameraReceivedVideoDataCallback mReceivedVideoDataCallBack = null;
 
-    // Codec for video live view
-    protected DJICodecManager mCodecManager = null;
+    protected TextureView mLeftVideoSurface = null, mRightVideoSurface = null;
+    private SurfaceTextureListener mLeftSurfaceListener, mRightSurfaceListener;
+    private SensorManager mSensorManager = new SensorManager(this);
 
-    protected TextureView mVideoSurface = null;
-    private Button mCaptureBtn, mShootPhotoModeBtn, mRecordVideoModeBtn;
-    private ToggleButton mRecordBtn;
-    private TextView recordingTime;
+    public DJIFlightController mFlightController;
+    public DJIRemoteController mRemoteController;
+
+    private Timer mFeedbackLoopTimer;
+    private FeedbackLoopTask mFeedbackLoopTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        initPermissions();
         setContentView(R.layout.activity_main);
 
-        initUI();
+        mLeftSurfaceListener = new SurfaceTextureListener(this);
+        mRightSurfaceListener = new SurfaceTextureListener(this);
 
         // The callback for receiving the raw H264 video data for camera live view
         mReceivedVideoDataCallBack = new CameraReceivedVideoDataCallback() {
 
             @Override
             public void onResult(byte[] videoBuffer, int size) {
-                if(mCodecManager != null){
+                if (mLeftSurfaceListener.getCodecManager() != null) {
                     // Send the raw H264 video data to codec manager for decoding
-                    mCodecManager.sendDataToDecoder(videoBuffer, size);
-                }else {
-                    Log.e(TAG, "mCodecManager is null");
+                    mLeftSurfaceListener.getCodecManager().sendDataToDecoder(videoBuffer, size);
+                } else {
+                    logger.appendLog("mLeftSurfaceListener.getCodecManager() is null");
+                }
+
+                if (mRightSurfaceListener.getCodecManager() != null) {
+                    // Send the raw H264 video data to codec manager for decoding
+                    mRightSurfaceListener.getCodecManager().sendDataToDecoder(videoBuffer, size);
+                } else {
+                    logger.appendLog("mRightSurfaceListener.getCodecManager() is null");
                 }
             }
         };
 
-        DJICamera camera = DroneXPApplication.getCameraInstance();
+        initUI();
+        initTimer();
 
-        if (camera != null) {
-            camera.setDJICameraUpdatedSystemStateCallback(new DJICamera.CameraUpdatedSystemStateCallback() {
-                @Override
-                public void onResult(DJICamera.CameraSystemState cameraSystemState) {
-                    if (null != cameraSystemState) {
+        // Register the broadcast receiver for receiving the device connection's changes.
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(DroneXPApplication.FLAG_CONNECTION_CHANGE);
+        registerReceiver(mReceiver, filter);
+    }
 
-                        int recordTime = cameraSystemState.getCurrentVideoRecordingTimeInSeconds();
-                        int minutes = (recordTime % 3600) / 60;
-                        int seconds = recordTime % 60;
-
-                        final String timeString = String.format("%02d:%02d", minutes, seconds);
-                        final boolean isVideoRecording = cameraSystemState.isRecording();
-
-                        MainActivity.this.runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-
-                                recordingTime.setText(timeString);
-
-                                /*
-                                 * Update recordingTime TextView visibility and mRecordBtn's check state
-                                 */
-                                if (isVideoRecording){
-                                    recordingTime.setVisibility(View.VISIBLE);
-                                }else
-                                {
-                                    recordingTime.setVisibility(View.INVISIBLE);
-                                }
-                            }
-                        });
+    private void initPermissions() {
+        // When the compile and target version is higher than 22, please request the
+        // following permissions at runtime to ensure the
+        // SDK work well.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.VIBRATE,
+                            Manifest.permission.INTERNET, Manifest.permission.ACCESS_WIFI_STATE,
+                            Manifest.permission.WAKE_LOCK, Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.CHANGE_WIFI_STATE, Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS,
+                            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.SYSTEM_ALERT_WINDOW,
+                            Manifest.permission.READ_PHONE_STATE,
                     }
-                }
-            });
+                    , 1);
         }
-
     }
 
-    protected void onProductChange() {
-        initPreviewer();
-    }
+    protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            initFlightController();
+        }
+    };
 
     @Override
     public void onResume() {
-        Log.e(TAG, "onResume");
-        super.onResume();
-        initPreviewer();
-        onProductChange();
+        logger.appendLog("onResume");
+        mSensorManager.Sense();
 
-        if(mVideoSurface == null) {
-            Log.e(TAG, "mVideoSurface is null");
-        }
+        super.onResume();
     }
 
     @Override
     public void onPause() {
-        Log.e(TAG, "onPause");
+        logger.appendLog("onPause");
+
         uninitPreviewer();
         super.onPause();
     }
 
     @Override
     public void onStop() {
-        Log.e(TAG, "onStop");
+        logger.appendLog("onStop");
+
         super.onStop();
     }
 
-    public void onReturn(View view){
-        Log.e(TAG, "onReturn");
+    public void onReturn(View view) {
+        logger.appendLog("onReturn");
+
         this.finish();
     }
 
     @Override
     protected void onDestroy() {
-        Log.e(TAG, "onDestroy");
+        logger.appendLog("onDestroy");
+
         uninitPreviewer();
         super.onDestroy();
     }
 
     private void initUI() {
-        // init mVideoSurface
-        mVideoSurface = (TextureView)findViewById(R.id.video_previewer_surface);
+        logger.appendLog("initUI");
+        // initFlightController mVideoSurface
+        mLeftVideoSurface = (TextureView) findViewById(R.id.video_surface_left);
+        mRightVideoSurface = (TextureView) findViewById(R.id.video_surface_right);
 
-        recordingTime = (TextView) findViewById(R.id.timer);
-        mCaptureBtn = (Button) findViewById(R.id.btn_capture);
-        mRecordBtn = (ToggleButton) findViewById(R.id.btn_record);
-        mShootPhotoModeBtn = (Button) findViewById(R.id.btn_shoot_photo_mode);
-        mRecordVideoModeBtn = (Button) findViewById(R.id.btn_record_video_mode);
-
-        if (null != mVideoSurface) {
-            mVideoSurface.setSurfaceTextureListener(this);
-        }
-
-        mCaptureBtn.setOnClickListener(this);
-        mRecordBtn.setOnClickListener(this);
-        mShootPhotoModeBtn.setOnClickListener(this);
-        mRecordVideoModeBtn.setOnClickListener(this);
-
-        recordingTime.setVisibility(View.INVISIBLE);
-
-        mRecordBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    startRecord();
-                } else {
-                    stopRecord();
-                }
-            }
-        });
+        setSurfaceListener();
     }
 
-    private void initPreviewer() {
+    private void initTimer() {
+        if (null == mFeedbackLoopTimer) {
+            mFeedbackLoopTask = new FeedbackLoopTask();
+            mFeedbackLoopTimer = new Timer();
+            mFeedbackLoopTimer.schedule(mFeedbackLoopTask, 0, 1000);
+        }
+    }
 
-        DJIBaseProduct product = DroneXPApplication.getProductInstance();
+    private void setSurfaceListener() {
+        if (null != mLeftVideoSurface) {
+            mLeftVideoSurface.setSurfaceTextureListener(mLeftSurfaceListener);
+        }
+        if (null != mRightVideoSurface) {
+            mRightVideoSurface.setSurfaceTextureListener(mRightSurfaceListener);
+        }
+    }
 
-        if (product == null || !product.isConnected()) {
-            showToast(getString(R.string.disconnected));
+    private void initFlightController() {
+
+        logger.appendLog("initFlightController");
+
+        DJIAircraft aircraft = DroneXPApplication.getAircraftInstance();
+        if (aircraft == null || !aircraft.isConnected()) {
+            showToast("Disconnected");
+            mFlightController = null;
+            return;
         } else {
-            if (null != mVideoSurface) {
-                mVideoSurface.setSurfaceTextureListener(this);
-            }
-            if (!product.getModel().equals(Model.UnknownAircraft)) {
-                DJICamera camera = product.getCamera();
-                if (camera != null){
-                    // Set the callback
-                    camera.setDJICameraReceivedVideoDataCallback(mReceivedVideoDataCallBack);
-                }
+            mFlightController = aircraft.getFlightController();
+            mRemoteController = aircraft.getRemoteController();
+
+            logger.appendLog("aircraft is: " + aircraft.getModel().getDisplayName());
+            setSurfaceListener();
+
+            DJICamera camera = aircraft.getCamera();
+            if (camera != null) {
+                // Set the callback
+                camera.setDJICameraReceivedVideoDataCallback(mReceivedVideoDataCallBack);
             }
         }
     }
 
     private void uninitPreviewer() {
         DJICamera camera = DroneXPApplication.getCameraInstance();
-        if (camera != null){
+        if (camera != null) {
             // Reset the callback
             DroneXPApplication.getCameraInstance().setDJICameraReceivedVideoDataCallback(null);
         }
-    }
-
-    @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        Log.e(TAG, "onSurfaceTextureAvailable");
-        if (mCodecManager == null) {
-            mCodecManager = new DJICodecManager(this, surface, width, height);
-        }
-    }
-
-    @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        Log.e(TAG, "onSurfaceTextureSizeChanged");
-    }
-
-    @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        Log.e(TAG,"onSurfaceTextureDestroyed");
-        if (mCodecManager != null) {
-            mCodecManager.cleanSurface();
-            mCodecManager = null;
-        }
-
-        return false;
-    }
-
-    @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
     }
 
     public void showToast(final String msg) {
@@ -239,108 +208,18 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     }
 
     @Override
-    public void onClick(View v) {
-
-        switch (v.getId()) {
-            case R.id.btn_capture:{
-                captureAction();
-                break;
-            }
-            case R.id.btn_shoot_photo_mode:{
-                switchCameraMode(CameraMode.ShootPhoto);
-                break;
-            }
-            case R.id.btn_record_video_mode:{
-                switchCameraMode(CameraMode.RecordVideo);
-                break;
-            }
-            default:
-                break;
-        }
+    public void onStart() {
+        super.onStart();
     }
 
-    private void switchCameraMode(CameraMode cameraMode){
+    class FeedbackLoopTask extends TimerTask {
 
-        DJICamera camera = DroneXPApplication.getCameraInstance();
-        if (camera != null) {
-            camera.setCameraMode(cameraMode, new DJICompletionCallback() {
-                @Override
-                public void onResult(DJIError error) {
+        @Override
+        public void run() {
+            mSensorManager.Sense();
 
-                    if (error == null) {
-                        showToast("Switch Camera Mode Succeeded");
-                    } else {
-                        showToast(error.getDescription());
-                    }
-                }
-            });
-        }
-
-    }
-
-    // Method for taking photo
-    private void captureAction(){
-
-        CameraMode cameraMode = CameraMode.ShootPhoto;
-
-        final DJICamera camera = DroneXPApplication.getCameraInstance();
-        if (camera != null) {
-
-            CameraShootPhotoMode photoMode = CameraShootPhotoMode.Single; // Set the camera capture mode as Single mode
-            camera.startShootPhoto(photoMode, new DJICompletionCallback() {
-
-                @Override
-                public void onResult(DJIError error) {
-                    if (error == null) {
-                        showToast("take photo: success");
-                    } else {
-                        showToast(error.getDescription());
-                    }
-                }
-
-            }); // Execute the startShootPhoto API
         }
     }
-
-    // Method for starting recording
-    private void startRecord(){
-
-        CameraMode cameraMode = CameraMode.RecordVideo;
-        final DJICamera camera = DroneXPApplication.getCameraInstance();
-        if (camera != null) {
-            camera.startRecordVideo(new DJICompletionCallback(){
-                @Override
-                public void onResult(DJIError error)
-                {
-                    if (error == null) {
-                        showToast("Record video: success");
-                    }else {
-                        showToast(error.getDescription());
-                    }
-                }
-            }); // Execute the startRecordVideo API
-        }
-    }
-
-    // Method for stopping recording
-    private void stopRecord(){
-
-        DJICamera camera = DroneXPApplication.getCameraInstance();
-        if (camera != null) {
-            camera.stopRecordVideo(new DJICompletionCallback(){
-
-                @Override
-                public void onResult(DJIError error)
-                {
-                    if(error == null) {
-                        showToast("Stop recording: success");
-                    }else {
-                        showToast(error.getDescription());
-                    }
-                }
-            }); // Execute the stopRecordVideo API
-        }
-
-    }
-
 }
+
+
