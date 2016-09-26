@@ -45,6 +45,11 @@ public class DroneXPApplication extends Application {
         return getProductInstance() != null && getProductInstance() instanceof DJIAircraft;
     }
 
+    public static synchronized DJIAircraft getAircraftInstance() {
+        if (!isAircraftConnected()) return null;
+        return (DJIAircraft) getProductInstance();
+    }
+
     public static boolean isHandHeldConnected() {
         return getProductInstance() != null && getProductInstance() instanceof DJIHandHeld;
     }
