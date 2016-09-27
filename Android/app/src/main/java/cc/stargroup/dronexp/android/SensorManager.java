@@ -6,6 +6,7 @@ import android.hardware.SensorEventListener;
 import android.util.Log;
 
 import dji.sdk.FlightController.DJIFlightControllerDataType;
+import dji.sdk.Gimbal.DJIGimbal;
 import dji.sdk.RemoteController.DJIRemoteController;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIError;
@@ -34,10 +35,10 @@ public class SensorManager implements SensorEventListener {
 
     public void Sense() {
 
-        String str = String.format("Phone: azimut=%f pitch=%f roll=%f", Math.toDegrees(orientation[0]), Math.toDegrees(orientation[1]), Math.toDegrees(orientation[2]));
-        str = str + " " + calculateOrientation();
+        String str = String.format("Mobile -> azimut=%f pitch=%f roll=%f", Math.toDegrees(orientation[0]), Math.toDegrees(orientation[1]), Math.toDegrees(orientation[2]));
+        str = str + " " + calculateOrientation() + "\n";
         //logger.appendLog(str);
-        mActivity.showText(str);
+
         Log.i(TAG, str);
 
         if (mActivity.mFlightController != null) {
@@ -51,27 +52,18 @@ public class SensorManager implements SensorEventListener {
             String latitude = String.format("%.2f", location.getLatitude());
             String longitude = String.format("%.2f", location.getLongitude());
 
-            str = "Yaw : " + yaw + ", Pitch : " + pitch + ", Roll : " + roll + "\n" + ", Altitude : " + altitude +
+            str += "FlightController -> Yaw : " + yaw + ", Pitch : " + pitch + ", Roll : " + roll + "\n" + ", Altitude : " + altitude +
                     ", Latitude : " + latitude +
-                    ", Longitude : " + longitude;
-            logger.appendLog(str);
+                    ", Longitude : " + longitude + "\n";
+            //logger.appendLog(str);
         }
 
-        if (mActivity.mRemoteController != null) {
-            mActivity.mRemoteController.getRCWheelControlGimbalSpeed(new DJIBaseComponent.DJICompletionCallbackWith<Short>() {
-                @Override
-                public void onSuccess(Short aShort) {
-                    String str = "GimbalDirection: " + aShort;
-                    logger.appendLog(str);
-                }
-
-                @Override
-                public void onFailure(DJIError djiError) {
-                    logger.appendLog(djiError.getDescription());
-                }
-            });
+        if (mActivity.mGimbal != null) {
+            DJIGimbal.DJIGimbalAttitude attitude = mActivity.mGimbal.getAttitudeInDegrees();
+            str += "Gimbal -> pitch : " + attitude.pitch + ", roll : " + attitude.roll + ", yaw : " + attitude.yaw + "\n";
         }
 
+        mActivity.showText(str);
     }
 
     public void registerListener() {

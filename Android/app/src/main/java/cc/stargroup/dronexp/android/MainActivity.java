@@ -20,6 +20,7 @@ import java.util.TimerTask;
 import dji.sdk.Camera.DJICamera;
 import dji.sdk.Camera.DJICamera.CameraReceivedVideoDataCallback;
 import dji.sdk.FlightController.DJIFlightController;
+import dji.sdk.Gimbal.DJIGimbal;
 import dji.sdk.Products.DJIAircraft;
 import dji.sdk.RemoteController.DJIRemoteController;
 
@@ -36,6 +37,7 @@ public class MainActivity extends Activity  {
 
     public DJIFlightController mFlightController;
     public DJIRemoteController mRemoteController;
+    public DJIGimbal mGimbal;
 
     private Timer mFeedbackLoopTimer;
     private FeedbackLoopTask mFeedbackLoopTask;
@@ -149,7 +151,7 @@ public class MainActivity extends Activity  {
         if (null == mFeedbackLoopTimer) {
             mFeedbackLoopTask = new FeedbackLoopTask();
             mFeedbackLoopTimer = new Timer();
-            mFeedbackLoopTimer.schedule(mFeedbackLoopTask, 0, 1000);
+            mFeedbackLoopTimer.schedule(mFeedbackLoopTask, 0, 200);
         }
     }
 
@@ -171,6 +173,7 @@ public class MainActivity extends Activity  {
         } else {
             mFlightController = aircraft.getFlightController();
             mRemoteController = aircraft.getRemoteController();
+            mGimbal = aircraft.getGimbal();
 
             logger.appendLog("aircraft is: " + aircraft.getModel().getDisplayName());
             setSurfaceListener();

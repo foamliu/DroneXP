@@ -64,11 +64,20 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        </activity>
+
         <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+            android:name="DEVELOPER_MERCHANT_ID"
+            android:value="C3845343263589043" />
+        <meta-data
+            android:name="DEVELOPER_APP_ID"
+            android:value="\03908657356234505" />
+        <meta-data
+            android:name="DEVELOPER_APP_KEY"
+            android:value="faadffa1383206111ae162969b340ad9" />
+        <meta-data
+            android:name="DEVELOPER_CHANNEL_ID"
+            android:value="www.mojing.cn" />
     </application>
 
 </manifest>
