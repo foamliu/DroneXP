@@ -1,6 +1,9 @@
 extends layout
 
-block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+block head
+    title 空间穿越
+
+block body
+    h1= message
+    h2= error.status
+    pre #{error.stack}
