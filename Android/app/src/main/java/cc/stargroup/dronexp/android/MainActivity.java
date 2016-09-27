@@ -14,6 +14,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baofeng.mojing.MojingVrActivity;
+import com.baofeng.mojing.input.base.MojingInputCallback;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -25,7 +28,7 @@ import dji.sdk.Products.DJIAircraft;
 import dji.sdk.RemoteController.DJIRemoteController;
 
 
-public class MainActivity extends Activity  {
+public class MainActivity extends MojingVrActivity implements MojingInputCallback {
 
     private static final String TAG = MainActivity.class.getName();
     private Logger logger = new Logger();
@@ -214,6 +217,46 @@ public class MainActivity extends Activity  {
     @Override
     public void onStart() {
         super.onStart();
+    }
+
+    @Override
+    public boolean onMojingKeyDown(String s, int i) {
+        return false;
+    }
+
+    @Override
+    public boolean onMojingKeyUp(String s, int i) {
+        return false;
+    }
+
+    @Override
+    public boolean onMojingKeyLongPress(String s, int i) {
+        return false;
+    }
+
+    @Override
+    public boolean onMojingMove(String s, int i, float v, float v1, float v2) {
+        return false;
+    }
+
+    @Override
+    public boolean onMojingMove(String s, int i, float v) {
+        return false;
+    }
+
+    @Override
+    public void onMojingDeviceAttached(String s) {
+
+    }
+
+    @Override
+    public void onMojingDeviceDetached(String s) {
+
+    }
+
+    @Override
+    public void onBluetoothAdapterStateChanged(int i) {
+
     }
 
     class FeedbackLoopTask extends TimerTask {
