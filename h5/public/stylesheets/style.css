@@ -35,6 +35,12 @@ a, article, aside, blockquote, body, button, code, dd, details, div, dl, dt, fie
   text-indent: 2em;
 }
 
+.active-container p {
+  font-size: .8rem;
+  line-height: 1.6rem;
+  color: #566b85;
+}
+
 .active-container p .tl {
   font-size: .8rem;
   display: table-cell;
