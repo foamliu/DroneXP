@@ -55,10 +55,8 @@ public class DroneXPApplication extends Application {
     }
 
     public static synchronized DJICamera getCameraInstance() {
-
         if (getProductInstance() == null) return null;
         return getProductInstance().getCamera();
-
     }
 
     @Override

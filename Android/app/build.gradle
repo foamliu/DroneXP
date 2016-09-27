@@ -15,11 +15,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    // Run lint checks but don't abort build
+    lintOptions {
+        abortOnError false
+    }
 }
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:design:23.3.0'
     compile project(':dJISDKLIB')
-    compile project(':MojingSDK')
+    //compile project(':MojingSDK')
 }
