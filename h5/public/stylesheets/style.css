@@ -36,19 +36,19 @@ a, article, aside, blockquote, body, button, code, dd, details, div, dl, dt, fie
 }
 
 .active-container p {
-  font-size: .8rem;
+  font-size: 1rem;
   line-height: 1.6rem;
   color: #566b85;
 }
 
 .active-container p .tl {
-  font-size: .8rem;
+  font-size: 1rem;
   display: table-cell;
   vertical-align: top;
   min-width: 4.3rem;
 }
 
 .active-container p .tr {
-  font-size: .8rem;
+  font-size: 1rem;
   display: table-cell;
 }
