@@ -26,7 +26,9 @@ block body
 
             var container = document.getElementById("container");
             var width = window.screen.width - window.innerWidth > 0 ? window.innerWidth : window.screen.width;
+            var height = window.screen.height - window.innerHeight > 0 ? window.innerHeight : window.screen.height;
             container.style.width = width + "px";
+            container.style.height = height + "px";
 
             var map = new AMap.Map('container', {
                 center: [121.48, 31.05], // 上海
