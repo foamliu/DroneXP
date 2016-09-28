@@ -21,12 +21,12 @@ block body
 
             var map = new AMap.Map('container', {
                 resizeEnable: true,
-                zoom:12,
+                zoom:15,
                 center: [longitude, latitude]
             });
 
             var marker = new AMap.Marker({
-                position: [116.480983, 39.989628]
+                position: [longitude, latitude]
             });
             marker.setMap(map);
         }
