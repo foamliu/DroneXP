@@ -17,7 +17,13 @@ block body
             var altitude = position.coords.altitude; //海拔
             var accuracy = position.coords.accuracy; //精确度
             console.log(latitude + ", " + longitude + ", " + altitude + ", " + accuracy);
-            alert(latitude + ", " + longitude + ", " + altitude + ", " + accuracy)
+            //alert(latitude + ", " + longitude + ", " + altitude + ", " + accuracy)
+
+            var map = new AMap.Map('container', {
+                resizeEnable: true,
+                zoom:11,
+                center: [longitude, latitude]
+            });
         }
     script.
         function onError(error){
