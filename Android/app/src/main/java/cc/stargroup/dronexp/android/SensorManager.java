@@ -34,12 +34,16 @@ public class SensorManager implements SensorEventListener {
     }
 
     public void Sense() {
+        double mobileYaw = Math.toDegrees(orientation[0]);
+        double mobilePitch = Math.toDegrees(orientation[1]);
+        final double mobileRoll = Math.toDegrees(orientation[2]);
 
-        String str = String.format("Mobile -> azimut=%f pitch=%f roll=%f", Math.toDegrees(orientation[0]), Math.toDegrees(orientation[1]), Math.toDegrees(orientation[2]));
-        str = str + " " + calculateOrientation() + "\n";
+        final StringBuilder str = new StringBuilder();
+        str.append(String.format("Mobile -> yaw=%f pitch=%f roll=%f", mobileYaw, mobilePitch, mobileRoll));
+        str.append(" " + calculateOrientation() + "\n");
         //logger.appendLog(str);
 
-        Log.i(TAG, str);
+        Log.i(TAG, str.toString());
 
         if (mActivity.mFlightController != null) {
             DJIFlightControllerDataType.DJIAttitude attitude = mActivity.mFlightController.getCurrentState().getAttitude();
@@ -52,18 +56,40 @@ public class SensorManager implements SensorEventListener {
             String latitude = String.format("%.2f", location.getLatitude());
             String longitude = String.format("%.2f", location.getLongitude());
 
-            str += "FlightController -> Yaw : " + yaw + ", Pitch : " + pitch + ", Roll : " + roll + "\n" + ", Altitude : " + altitude +
+            str.append("FlightController -> Yaw : " + yaw + ", Pitch : " + pitch + ", Roll : " + roll + "\n" + ", Altitude : " + altitude +
                     ", Latitude : " + latitude +
-                    ", Longitude : " + longitude + "\n";
+                    ", Longitude : " + longitude + "\n");
             //logger.appendLog(str);
         }
 
         if (mActivity.mGimbal != null) {
             DJIGimbal.DJIGimbalAttitude attitude = mActivity.mGimbal.getAttitudeInDegrees();
-            str += "Gimbal -> pitch : " + attitude.pitch + ", roll : " + attitude.roll + ", yaw : " + attitude.yaw + "\n";
+            str.append("Gimbal -> pitch : " + attitude.pitch + ", roll : " + attitude.roll + ", yaw : " + attitude.yaw + "\n");
+
+            float dPitch = 90 + (float)mobileRoll;
+
+            if (0 <= dPitch && dPitch <= 90) {
+                DJIGimbal.DJIGimbalAngleRotation
+                        pitch = new DJIGimbal.DJIGimbalAngleRotation(true, dPitch, DJIGimbal.DJIGimbalRotateDirection.CounterClockwise);
+                DJIGimbal.DJIGimbalAngleRotation
+                        roll = new DJIGimbal.DJIGimbalAngleRotation(false, 0, DJIGimbal.DJIGimbalRotateDirection.CounterClockwise);
+                DJIGimbal.DJIGimbalAngleRotation
+                        yaw = new DJIGimbal.DJIGimbalAngleRotation(false, 0, DJIGimbal.DJIGimbalRotateDirection.CounterClockwise);
+                str.append("Sent -> gimbal pitch=" + dPitch);
+                mActivity.mGimbal.rotateGimbalByAngle(DJIGimbal.DJIGimbalRotateAngleMode.AbsoluteAngle, pitch, roll, yaw, new DJIBaseComponent.DJICompletionCallback(){
+                    @Override
+                    public void onResult(DJIError djiError) {
+                        if (djiError != null) {
+                            logger.appendLog(djiError.getDescription());
+                            str.append(", result=" + djiError.getDescription() + "\n");
+                        }
+                    }
+                });
+
+            }
         }
 
-        mActivity.showText(str);
+        mActivity.showText(str.toString());
     }
 
     public void registerListener() {

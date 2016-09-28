@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.TextureView;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +29,7 @@ import dji.sdk.Products.DJIAircraft;
 import dji.sdk.RemoteController.DJIRemoteController;
 
 
-public class MainActivity extends MojingVrActivity implements MojingInputCallback {
+public class MainActivity extends Activity implements MojingInputCallback {
 
     private static final String TAG = MainActivity.class.getName();
     private Logger logger = new Logger();
@@ -75,6 +76,8 @@ public class MainActivity extends MojingVrActivity implements MojingInputCallbac
         IntentFilter filter = new IntentFilter();
         filter.addAction(DroneXPApplication.FLAG_CONNECTION_CHANGE);
         registerReceiver(mReceiver, filter);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void initPermissions() {
