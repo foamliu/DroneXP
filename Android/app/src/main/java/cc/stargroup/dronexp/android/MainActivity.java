@@ -9,14 +9,14 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.baofeng.mojing.MojingVrActivity;
-import com.baofeng.mojing.input.base.MojingInputCallback;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,7 +29,7 @@ import dji.sdk.Products.DJIAircraft;
 import dji.sdk.RemoteController.DJIRemoteController;
 
 
-public class MainActivity extends Activity implements MojingInputCallback {
+public class MainActivity extends Activity   {
 
     private static final String TAG = MainActivity.class.getName();
     private Logger logger = new Logger();
@@ -45,6 +45,8 @@ public class MainActivity extends Activity implements MojingInputCallback {
 
     private Timer mFeedbackLoopTimer;
     private FeedbackLoopTask mFeedbackLoopTask;
+
+    InputManager joystick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,8 @@ public class MainActivity extends Activity implements MojingInputCallback {
         registerReceiver(mReceiver, filter);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        joystick = new InputManager();
     }
 
     private void initPermissions() {
@@ -114,14 +118,19 @@ public class MainActivity extends Activity implements MojingInputCallback {
         mSensorManager.registerListener();
 
         super.onResume();
+        //joystick.Connect(this, null);
+
     }
 
     @Override
     public void onPause() {
-        logger.appendLog("onPause");
+        //logger.appendLog("onPause");
+        //joystick.Disconnect();
         uninitPreviewer();
         mSensorManager.unregisterListener();
         super.onPause();
+
+
     }
 
     @Override
@@ -218,48 +227,69 @@ public class MainActivity extends Activity implements MojingInputCallback {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        if (this.joystick.dispatchGenericMotionEvent(event))
+            return true;
+        return super.dispatchGenericMotionEvent(event);
     }
 
     @Override
-    public boolean onMojingKeyDown(String s, int i) {
-        return false;
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        logger.appendLog(event.toString());
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
-    public boolean onMojingKeyUp(String s, int i) {
-        return false;
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // Handle DPad keys and fire button on initial down but not on
+        // auto-repeat.
+        boolean handled = false;
+        if (event.getRepeatCount() == 0) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    handled = true;
+                    break;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    handled = true;
+                    break;
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    handled = true;
+                    break;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    handled = true;
+                    break;
+                default:
+                    handled = true;
+                    break;
+            }
+        }
+        return handled;
     }
 
     @Override
-    public boolean onMojingKeyLongPress(String s, int i) {
-        return false;
-    }
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        // Handle keys going up.
+        boolean handled = false;
 
-    @Override
-    public boolean onMojingMove(String s, int i, float v, float v1, float v2) {
-        return false;
-    }
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                handled = true;
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                handled = true;
+                break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                handled = true;
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                handled = true;
+                break;
+            default:
+                handled = true;
+                break;
+        }
 
-    @Override
-    public boolean onMojingMove(String s, int i, float v) {
-        return false;
-    }
-
-    @Override
-    public void onMojingDeviceAttached(String s) {
-
-    }
-
-    @Override
-    public void onMojingDeviceDetached(String s) {
-
-    }
-
-    @Override
-    public void onBluetoothAdapterStateChanged(int i) {
-
+        return handled;
     }
 
     class FeedbackLoopTask extends TimerTask {

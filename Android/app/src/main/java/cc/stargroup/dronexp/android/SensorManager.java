@@ -43,7 +43,7 @@ public class SensorManager implements SensorEventListener {
         str.append(" " + calculateOrientation() + "\n");
         //logger.appendLog(str);
 
-        Log.i(TAG, str.toString());
+        //Log.i(TAG, str.toString());
 
         if (mActivity.mFlightController != null) {
             DJIFlightControllerDataType.DJIAttitude attitude = mActivity.mFlightController.getCurrentState().getAttitude();

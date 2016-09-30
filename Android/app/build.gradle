@@ -8,6 +8,9 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        //ndk {
+        //    abiFilters "armeabi-v7a"
+        //}
     }
     buildTypes {
         release {
@@ -15,18 +18,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    // Run lint checks but don't abort build
-    lintOptions {
-        abortOnError false
-    }
 }
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:design:23.3.0'
     compile project(':dJISDKLIB')
-    compile files('libs/MojingSDK.jar')
-    compile files('libs/ZControllerLib-android-1.9.2.jar')
-    compile files('libs/ZControllerLib-android-ui-1.9.2.jar')
-    compile files('libs/ZControllerLib-common-1.9.2.jar')
-    //compile project(':MojingSDK')
 }
