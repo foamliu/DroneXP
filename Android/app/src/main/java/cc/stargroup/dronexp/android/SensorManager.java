@@ -4,14 +4,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.view.InputDevice;
-import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import dji.sdk.FlightController.DJIFlightControllerDataType;
 import dji.sdk.Gimbal.DJIGimbal;
-import dji.sdk.base.DJIBaseComponent;
-import dji.sdk.base.DJIError;
 
 /**
  * Created by Foam on 2016/9/25.
@@ -59,8 +56,8 @@ public class SensorManager implements SensorEventListener {
 
         final StringBuilder str = new StringBuilder();
         str.append(String.format("Head -> pitch=%f roll=%f yaw=%f", getHeadPitch(), getHeadRoll(), getHeadYaw()));
-        str.append(" " + calculateOrientation(getHeadYaw()));
-        str.append("Joystick X-Axis: " + mXAxis + ", Y-Axis" + mYAxis + "\n");
+        str.append(" ").append(calculateOrientation(getHeadYaw()));
+        str.append("Joystick X-Axis: ").append(mXAxis).append(", Y-Axis").append(mYAxis).append("\n");
 
         mActuator.sendData(getHeadPitch(), getHeadRoll(), getHeadYaw(), mXAxis, mYAxis);
 
@@ -75,16 +72,16 @@ public class SensorManager implements SensorEventListener {
 //            String latitude = String.format("%.2f", location.getLatitude());
 //            String longitude = String.format("%.2f", location.getLongitude());
 
-            str.append("FlightController -> pitch : " + pitch + ",  roll: " + roll + ", yaw: " + yaw + "\n");
+            str.append("FlightController -> pitch : ").append(pitch).append(",  roll: ").append(roll).append(", yaw: ").append(yaw).append("\n");
         }
 
         if (mActivity.mGimbal != null) {
             DJIGimbal.DJIGimbalAttitude attitude = mActivity.mGimbal.getAttitudeInDegrees();
-            str.append("Gimbal -> pitch : " + attitude.pitch + ", roll : " + attitude.roll + ", yaw : " + attitude.yaw + "\n");
+            str.append("Gimbal -> pitch : ").append(attitude.pitch).append(", roll : ").append(attitude.roll).append(", yaw : ").append(attitude.yaw).append("\n");
         }
 
         if (mActivity.isVideoRecording()) {
-            str.append("Recording=" + mActivity.getTimeString() + "\n");
+            str.append("Recording=").append(mActivity.getTimeString()).append("\n");
         }
 
         mActivity.showText(str.toString());
@@ -175,6 +172,7 @@ public class SensorManager implements SensorEventListener {
             return false;
         } else {
             String deviceName = getUniqueName(input);
+            logger.appendLog(deviceName);
             // Check that the event came from a game controller
             if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) ==
                     InputDevice.SOURCE_JOYSTICK &&
@@ -286,13 +284,4 @@ public class SensorManager implements SensorEventListener {
         return device.getName() + "_" + device.getId();
     }
 
-    public static boolean isDpadDevice(InputEvent event) {
-        // Check that input comes from a device with directional pads.
-        if ((event.getSource() & InputDevice.SOURCE_DPAD)
-                != InputDevice.SOURCE_DPAD) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

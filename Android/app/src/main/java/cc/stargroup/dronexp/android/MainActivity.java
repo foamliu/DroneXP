@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +54,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     String timeString;
     boolean isVideoRecording;
 
+    Button mRecordVideoModeBtn;
     ToggleButton mRecordBtn;
 
     @Override
@@ -190,6 +192,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
             }
         });
+
+        mRecordVideoModeBtn = (Button) findViewById(R.id.btn_record_video_mode);
+        mRecordVideoModeBtn.setOnClickListener(this);
     }
 
     private void initTimer() {
@@ -274,6 +279,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.btn_record_video_mode:{
+                switchCameraMode(DJICameraSettingsDef.CameraMode.RecordVideo);
+                break;
+            }
             default:
                 break;
         }
@@ -324,6 +333,25 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     }
                 }
             }); // Execute the stopRecordVideo API
+        }
+
+    }
+
+    private void switchCameraMode(DJICameraSettingsDef.CameraMode cameraMode){
+
+        DJICamera camera = DroneXPApplication.getCameraInstance();
+        if (camera != null) {
+            camera.setCameraMode(cameraMode, new DJIBaseComponent.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError error) {
+
+                    if (error == null) {
+                        showToast("Switch Camera Mode Succeeded");
+                    } else {
+                        showToast(error.getDescription());
+                    }
+                }
+            });
         }
 
     }

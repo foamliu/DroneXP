@@ -6,7 +6,6 @@ import dji.sdk.Gimbal.DJIGimbal;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIError;
 
-import static dji.sdk.FlightController.DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMaxAngle;
 import static dji.sdk.FlightController.DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMaxVelocity;
 import static dji.sdk.FlightController.DJIFlightControllerDataType.DJIVirtualStickVerticalControlMaxVelocity;
 
