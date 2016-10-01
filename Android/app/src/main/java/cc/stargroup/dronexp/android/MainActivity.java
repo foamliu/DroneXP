@@ -135,26 +135,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onResume() {
-        logger.appendLog("onResume");
         if (mSensorManager == null) {
             mSensorManager = new SensorManager(this);
         }
         mSensorManager.registerListener();
 
         super.onResume();
-        //joystick.Connect(this, null);
-
     }
 
     @Override
     public void onPause() {
-        //logger.appendLog("onPause");
-        //joystick.Disconnect();
         uninitPreviewer();
         mSensorManager.unregisterListener();
         super.onPause();
-
-
     }
 
     @Override
@@ -279,62 +272,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // Handle DPad keys and fire button on initial down but not on
-        // auto-repeat.
-        boolean handled = false;
-        if (event.getRepeatCount() == 0) {
-            switch (keyCode) {
-                case KeyEvent.KEYCODE_DPAD_LEFT:
-                    handled = true;
-                    break;
-                case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    handled = true;
-                    break;
-                case KeyEvent.KEYCODE_DPAD_UP:
-                    handled = true;
-                    break;
-                case KeyEvent.KEYCODE_DPAD_DOWN:
-                    handled = true;
-                    break;
-                default:
-                    handled = true;
-                    break;
-            }
-        }
-        return handled;
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        // Handle keys going up.
-        boolean handled = false;
-
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_LEFT:
-                handled = true;
-                break;
-            case KeyEvent.KEYCODE_DPAD_RIGHT:
-                handled = true;
-                break;
-            case KeyEvent.KEYCODE_DPAD_UP:
-                handled = true;
-                break;
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-                handled = true;
-                break;
-            default:
-                handled = true;
-                break;
-        }
-
-        return handled;
-    }
-
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
-
             default:
                 break;
         }

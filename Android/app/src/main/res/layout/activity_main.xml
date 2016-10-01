@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
         android:id="@+id/linearLayout">
 
         <ToggleButton
@@ -29,7 +29,6 @@
             android:textSize="12dp"
             android:checked="false" />
     </LinearLayout>
-
 
     <TextView
         android:id="@+id/text_info"
