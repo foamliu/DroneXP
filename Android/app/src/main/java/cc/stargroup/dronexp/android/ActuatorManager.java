@@ -7,34 +7,34 @@ import dji.sdk.base.DJIError;
  * Created by Foam on 2016/9/25.
  */
 public class ActuatorManager {
-    private Logger logger = new Logger();
-    private MainActivity mActivity;
+    Logger logger = new Logger();
+    MainActivity mActivity;
 
     public ActuatorManager(MainActivity activity) {
         this.mActivity = activity;
     }
 
-    private void takeOffAction() {
+    public void takeOff() {
         mActivity.mFlightController.takeOff(new DJIBaseComponent.DJICompletionCallback() {
             @Override
             public void onResult(DJIError djiError) {
                 if (djiError != null) {
                     logger.appendLog(djiError.getDescription());
                 } else {
-                    logger.appendLog("Take off Success");
+                    mActivity.showToast("Take off Success");
                 }
             }
         });
     }
 
-    private void autoLandAction() {
+    public void autoLanding() {
         mActivity.mFlightController.autoLanding(new DJIBaseComponent.DJICompletionCallback() {
             @Override
             public void onResult(DJIError djiError) {
                 if (djiError != null) {
                     logger.appendLog(djiError.getDescription());
                 } else {
-                    logger.appendLog("Take off Success");
+                    mActivity.showToast("Take off Success");
                 }
             }
         });

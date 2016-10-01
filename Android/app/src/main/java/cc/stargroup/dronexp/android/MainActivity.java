@@ -9,27 +9,31 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 import dji.sdk.Camera.DJICamera;
 import dji.sdk.Camera.DJICamera.CameraReceivedVideoDataCallback;
+import dji.sdk.Camera.DJICameraSettingsDef;
 import dji.sdk.FlightController.DJIFlightController;
 import dji.sdk.Gimbal.DJIGimbal;
 import dji.sdk.Products.DJIAircraft;
 import dji.sdk.RemoteController.DJIRemoteController;
+import dji.sdk.base.DJIBaseComponent;
+import dji.sdk.base.DJIError;
 
 
-public class MainActivity extends Activity   {
+public class MainActivity extends Activity implements View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getName();
     private Logger logger = new Logger();
@@ -46,7 +50,10 @@ public class MainActivity extends Activity   {
     private Timer mFeedbackLoopTimer;
     private FeedbackLoopTask mFeedbackLoopTask;
 
-    InputManager joystick;
+    String timeString;
+    boolean isVideoRecording;
+
+    ToggleButton mRecordBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +88,24 @@ public class MainActivity extends Activity   {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        joystick = new InputManager();
+        DJICamera camera = DroneXPApplication.getCameraInstance();
+
+        if (camera != null) {
+            camera.setDJICameraUpdatedSystemStateCallback(new DJICamera.CameraUpdatedSystemStateCallback() {
+                @Override
+                public void onResult(DJICamera.CameraSystemState cameraSystemState) {
+                    if (null != cameraSystemState) {
+
+                        int recordTime = cameraSystemState.getCurrentVideoRecordingTimeInSeconds();
+                        int minutes = (recordTime % 3600) / 60;
+                        int seconds = recordTime % 60;
+
+                        timeString = String.format("%02d:%02d", minutes, seconds);
+                        isVideoRecording = cameraSystemState.isRecording();
+                    }
+                }
+            });
+        }
     }
 
     private void initPermissions() {
@@ -160,6 +184,19 @@ public class MainActivity extends Activity   {
         mVideoSurface = (TextureView) findViewById(R.id.video_surface);
 
         setSurfaceListener();
+
+        mRecordBtn = (ToggleButton) findViewById(R.id.btn_record);
+        mRecordBtn.setOnClickListener(this);
+        mRecordBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    startRecord();
+                } else {
+                    stopRecord();
+                }
+            }
+        });
     }
 
     private void initTimer() {
@@ -228,15 +265,17 @@ public class MainActivity extends Activity   {
 
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
-        if (this.joystick.dispatchGenericMotionEvent(event))
+        if (this.mSensorManager.dispatchGenericMotionEvent(event))
             return true;
         return super.dispatchGenericMotionEvent(event);
     }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        logger.appendLog(event.toString());
-        return super.dispatchKeyEvent(event);
+        if (mSensorManager.dispatchKeyEvent(event))
+            return true;
+        else
+            return super.dispatchKeyEvent(event);
     }
 
     @Override
@@ -290,6 +329,64 @@ public class MainActivity extends Activity   {
         }
 
         return handled;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+
+            default:
+                break;
+        }
+    }
+
+    public String getTimeString() {
+        return timeString;
+    }
+
+    public boolean isVideoRecording() {
+        return isVideoRecording;
+    }
+
+    // Method for starting recording
+    private void startRecord(){
+
+        DJICameraSettingsDef.CameraMode cameraMode = DJICameraSettingsDef.CameraMode.RecordVideo;
+        final DJICamera camera = DroneXPApplication.getCameraInstance();
+        if (camera != null) {
+            camera.startRecordVideo(new DJIBaseComponent.DJICompletionCallback(){
+                @Override
+                public void onResult(DJIError error)
+                {
+                    if (error == null) {
+                        showToast("Record video: success");
+                    }else {
+                        showToast(error.getDescription());
+                    }
+                }
+            }); // Execute the startRecordVideo API
+        }
+    }
+
+    // Method for stopping recording
+    private void stopRecord(){
+
+        DJICamera camera = DroneXPApplication.getCameraInstance();
+        if (camera != null) {
+            camera.stopRecordVideo(new DJIBaseComponent.DJICompletionCallback(){
+
+                @Override
+                public void onResult(DJIError error)
+                {
+                    if(error == null) {
+                        showToast("Stop recording: success");
+                    }else {
+                        showToast(error.getDescription());
+                    }
+                }
+            }); // Execute the stopRecordVideo API
+        }
+
     }
 
     class FeedbackLoopTask extends TimerTask {
