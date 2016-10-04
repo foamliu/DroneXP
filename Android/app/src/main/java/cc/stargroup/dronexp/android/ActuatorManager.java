@@ -15,6 +15,9 @@ import static dji.sdk.FlightController.DJIFlightControllerDataType.DJIVirtualSti
 public class ActuatorManager {
     Logger logger = new Logger();
     MainActivity mActivity;
+    float mSafeLimit = 0.1F;
+    boolean isFlightControllerReady = false;
+    boolean isGimbalReady = false;
 
     public ActuatorManager(MainActivity activity) {
         this.mActivity = activity;
@@ -26,7 +29,7 @@ public class ActuatorManager {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {
-                        logger.appendLog(djiError.getDescription());
+                        mActivity.showToast("takeOff: " + djiError.getDescription());
                     } else {
                         mActivity.showToast("Take off Success");
                     }
@@ -42,48 +45,75 @@ public class ActuatorManager {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {
-                        logger.appendLog(djiError.getDescription());
+                        mActivity.showToast("autoLanding: " + djiError.getDescription());
                     } else {
-                        mActivity.showToast("Take off Success");
+                        mActivity.showToast("Auto Landing Success");
                     }
                 }
             });
         }
     }
 
-    public void sendData(float headPitch, float headRoll, float headYaw, float xAxis, float yAxis) {
+    public void goHome() {
+        if (mActivity.mFlightController != null) {
+            mActivity.mFlightController.goHome(new DJIBaseComponent.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError djiError) {
+                    if (djiError != null) {
+                        mActivity.showToast("goHome: " + djiError.getDescription());
+                    } else {
+                        mActivity.showToast("Go Home Success");
+                    }
+                }
+            });
+        }
+    }
+
+    public void sendData(float headPitch, float headRoll, float headYaw, float xAxis, float yAxis, boolean isUpPressed, boolean isDownPressed) {
 
         DJIFlightController flightController = mActivity.mFlightController;
         DJIGimbal gimbal = mActivity.mGimbal;
 
-        headRoll = headRoll > 30 ? 30 : headRoll;
-        headRoll = headRoll < -30 ? -30 : headRoll;
+        //float safeLimit = 0.1F;
+        float throttle = 0.0F;
+        if (isDownPressed) {
+            throttle = -1.0F;
+        }
+        else if (isUpPressed) {
+            throttle = +1.0F;
+        }
+        else {
+            throttle = 0.0F;
+        }
 
-        float safeLimit = 0.01F;
-
-        float pPitch = xAxis * DJIVirtualStickRollPitchControlMaxVelocity * safeLimit;
-        float pRoll = headRoll * 1.0F / 30 * DJIVirtualStickRollPitchControlMaxVelocity * safeLimit;
+        float pPitch = yAxis * DJIVirtualStickRollPitchControlMaxVelocity * mSafeLimit;
+        float pRoll = xAxis * DJIVirtualStickRollPitchControlMaxVelocity * mSafeLimit;
         float pYaw = headYaw;
-        float pThrottle = -yAxis * DJIVirtualStickVerticalControlMaxVelocity * safeLimit;
+        float pThrottle = throttle * DJIVirtualStickVerticalControlMaxVelocity * mSafeLimit;
 
-        if (flightController != null) {
-            flightController.setVerticalControlMode(DJIFlightControllerDataType.DJIVirtualStickVerticalControlMode.Velocity);
-            flightController.setRollPitchControlMode(DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMode.Velocity);
-            flightController.setYawControlMode(DJIFlightControllerDataType.DJIVirtualStickYawControlMode.Angle);
+        if (flightController != null && flightController.isConnected()) {
+            if (!isFlightControllerReady) {
+                flightController.setHorizontalCoordinateSystem(DJIFlightControllerDataType.DJIVirtualStickFlightCoordinateSystem.Body);
+                flightController.setVerticalControlMode(DJIFlightControllerDataType.DJIVirtualStickVerticalControlMode.Velocity);
+                flightController.setRollPitchControlMode(DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMode.Velocity);
+                flightController.setYawControlMode(DJIFlightControllerDataType.DJIVirtualStickYawControlMode.Angle);
 
-            flightController.enableVirtualStickControlMode(new DJIBaseComponent.DJICompletionCallback() {
-                @Override
-                public void onResult(final DJIError djiError) {
-                    if (djiError != null) {
-                        mActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mActivity.showToast(djiError.getDescription());
-                            }
-                        });
+                flightController.enableVirtualStickControlMode(new DJIBaseComponent.DJICompletionCallback() {
+                    @Override
+                    public void onResult(final DJIError djiError) {
+                        if (djiError != null) {
+                            mActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mActivity.showToast("enableVirtualStickControlMode: " + djiError.getDescription());
+                                }
+                            });
+                        }
                     }
-                }
-            });
+                });
+
+                isFlightControllerReady = true;
+            }
 
             DJIFlightControllerDataType.DJIVirtualStickFlightControlData controlData =
                     new DJIFlightControllerDataType.DJIVirtualStickFlightControlData(pPitch, pRoll, pYaw, pThrottle);
@@ -94,7 +124,7 @@ public class ActuatorManager {
                         mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mActivity.showToast(djiError.getDescription());
+                                mActivity.showToast("sendVirtualStickFlightControlData: " + djiError.getDescription());
                             }
                         });
                     }
@@ -102,22 +132,40 @@ public class ActuatorManager {
             });
         }
 
-        if (gimbal != null) {
-            if (0 <= headPitch && headPitch <= 90) {
+        if (gimbal != null && gimbal.isConnected()) {
+            if (-30 <= headPitch && headPitch <= 90) {
+                if (!isGimbalReady) {
+                    gimbal.setPitchRangeExtensionEnabled(true, new DJIBaseComponent.DJICompletionCallback() {
+                        @Override
+                        public void onResult(final DJIError djiError) {
+                            if (djiError != null) {
+                                mActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mActivity.showToast("setPitchRangeExtensionEnabled: " + djiError.getDescription());
+                                    }
+                                });
+                            }
+                        }
+                    });
+
+                    isGimbalReady = true;
+                }
+
                 DJIGimbal.DJIGimbalAngleRotation
                         pitch = new DJIGimbal.DJIGimbalAngleRotation(true, headPitch, DJIGimbal.DJIGimbalRotateDirection.CounterClockwise);
                 DJIGimbal.DJIGimbalAngleRotation
                         roll = new DJIGimbal.DJIGimbalAngleRotation(false, 0, DJIGimbal.DJIGimbalRotateDirection.CounterClockwise);
                 DJIGimbal.DJIGimbalAngleRotation
                         yaw = new DJIGimbal.DJIGimbalAngleRotation(false, 0, DJIGimbal.DJIGimbalRotateDirection.CounterClockwise);
-                mActivity.mGimbal.rotateGimbalByAngle(DJIGimbal.DJIGimbalRotateAngleMode.AbsoluteAngle, pitch, roll, yaw, new DJIBaseComponent.DJICompletionCallback(){
+                gimbal.rotateGimbalByAngle(DJIGimbal.DJIGimbalRotateAngleMode.AbsoluteAngle, pitch, roll, yaw, new DJIBaseComponent.DJICompletionCallback(){
                     @Override
                     public void onResult(final DJIError djiError) {
                         if (djiError != null) {
                             mActivity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mActivity.showToast(djiError.getDescription());
+                                    mActivity.showToast("rotateGimbalByAngle: " + djiError.getDescription());
                                 }
                             });
                         }
@@ -126,6 +174,10 @@ public class ActuatorManager {
 
             }
         }
+    }
+
+    public void setSafeLimit(float safeLimit) {
+        this.mSafeLimit = safeLimit;
     }
 
 }

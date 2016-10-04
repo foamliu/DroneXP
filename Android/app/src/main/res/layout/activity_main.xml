@@ -45,6 +45,14 @@
             android:layout_weight="1"
             android:layout_gravity="center_vertical" />
 
+        <Button
+            android:id="@+id/btn_go_home"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Go Home"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical" />
+
         <ToggleButton
             android:id="@+id/btn_record"
             android:layout_width="0dp"
@@ -52,6 +60,18 @@
             android:text="Start Record"
             android:textOff="Start Record"
             android:textOn="Stop Record"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:textSize="12dp"
+            android:checked="false" />
+
+        <ToggleButton
+            android:id="@+id/btn_safe_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Normal Mode"
+            android:textOff="Normal Mode"
+            android:textOn="Safe Mode"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
             android:textSize="12dp"

@@ -26,22 +26,11 @@ public class SensorManager implements SensorEventListener {
     float[] mGeomagnetic;
     float orientation[] = new float[3];
 
-    //==============手柄===============
-    final static int UP = 0;
-    final static int LEFT = 1;
-    final static int RIGHT = 2;
-    final static int DOWN = 3;
-    final static int CENTER = 4;
-
-    //float lastHeadPitch = 0F;
-    //float lastHeadRoll = 0F;
-    //float lastHeadYaw = Float.MIN_VALUE;
-
     float mXAxis = 0F; // 向左-1，向右+1
     float mYAxis = 0F; // 向上-1，向下+1
 
-    int directionPressed = -1; // initialized to -1
-
+    boolean isUpPressed = false;
+    boolean isDownPressed = false;
 
     public SensorManager(MainActivity activity, ActuatorManager actuator) {
         this.mActivity = activity;
@@ -60,7 +49,7 @@ public class SensorManager implements SensorEventListener {
         str.append("Joystick X-Axis: ").append(mXAxis).append(", Y-Axis").append(mYAxis).append("\n");
 
         if (mActivity.isControlled()) {
-            mActuator.sendData(getHeadPitch(), getHeadRoll(), getHeadYaw(), mXAxis, mYAxis);
+            mActuator.sendData(getHeadPitch(), getHeadRoll(), getHeadYaw(), mXAxis, mYAxis, isUpPressed, isDownPressed);
         }
 
         if (mActivity.mFlightController != null) {
@@ -200,26 +189,40 @@ public class SensorManager implements SensorEventListener {
     }
 
     public boolean dispatchKeyEvent(KeyEvent event) {
-
         boolean handled = false;
+
         if (event.getRepeatCount() == 0) {
-            switch (event.getKeyCode()) {
-                case KeyEvent.KEYCODE_BUTTON_A:
-                    if (mActivity.isControlled()) {
-                        mActuator.takeOff();
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                switch (event.getKeyCode()) {
+                    case KeyEvent.KEYCODE_BUTTON_A:
+                        isUpPressed = true;
                         handled = true;
-                    }
-                    break;
-                case KeyEvent.KEYCODE_BUTTON_B:
-                    if (mActivity.isControlled()) {
-                        mActuator.autoLanding();
+                        break;
+                    case KeyEvent.KEYCODE_BUTTON_B:
+                        isDownPressed = true;
                         handled = true;
-                    }
-                    break;
-                default:
-                    handled = true;
-                    break;
+                        break;
+                    default:
+                        handled = true;
+                        break;
+                }
             }
+            else if (event.getAction() == KeyEvent.ACTION_UP) {
+                switch (event.getKeyCode()) {
+                    case KeyEvent.KEYCODE_BUTTON_A:
+                        isUpPressed = false;
+                        handled = true;
+                        break;
+                    case KeyEvent.KEYCODE_BUTTON_B:
+                        isDownPressed = false;
+                        handled = true;
+                        break;
+                    default:
+                        handled = true;
+                        break;
+                }
+            }
+
         }
         return handled;
     }

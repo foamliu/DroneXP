@@ -57,8 +57,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     boolean mIsControlled = false;
 
     //Button mRecordVideoModeBtn;
-    ToggleButton mRecordBtn, mControlButton;
-    Button mTakeOffBtn, mAutoLandingBtn;
+    ToggleButton mRecordBtn, mControlBtn, mSafeModeBtn;
+    Button mTakeOffBtn, mAutoLandingBtn, mGoHomeBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,9 +203,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
         //mRecordVideoModeBtn = (Button) findViewById(R.id.btn_record_video_mode);
         //mRecordVideoModeBtn.setOnClickListener(this);
 
-        mControlButton= (ToggleButton) findViewById(R.id.btn_control);
-        mControlButton.setOnClickListener(this);
-        mControlButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mControlBtn = (ToggleButton) findViewById(R.id.btn_control);
+        mControlBtn.setOnClickListener(this);
+        mControlBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -221,6 +221,22 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         mAutoLandingBtn = (Button) findViewById(R.id.btn_auto_landing);
         mAutoLandingBtn.setOnClickListener(this);
+
+        mSafeModeBtn = (ToggleButton) findViewById(R.id.btn_safe_mode);
+        mSafeModeBtn.setOnClickListener(this);
+        mSafeModeBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    normalMode();
+                } else {
+                    safeMode();
+                }
+            }
+        });
+
+        mGoHomeBtn = (Button) findViewById(R.id.btn_go_home);
+        mGoHomeBtn.setOnClickListener(this);
     }
 
     private void initTimer() {
@@ -305,15 +321,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            //case R.id.btn_record_video_mode:{
-            //    switchCameraMode(DJICameraSettingsDef.CameraMode.RecordVideo);
-            //    break;
-            //}
-            case R.id.btn_take_off:{
+            case R.id.btn_go_home:{
+                mActuator.goHome();
+                break;
+            }
+            case R.id.btn_take_off: {
                 mActuator.takeOff();
                 break;
             }
-            case R.id.btn_auto_landing:{
+            case R.id.btn_auto_landing: {
                 mActuator.autoLanding();
                 break;
             }
@@ -333,21 +349,21 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public boolean isControlled() {
         return mIsControlled;
     }
+
     // Method for starting recording
-    private void startRecord(){
+    private void startRecord() {
 
         DJICameraSettingsDef.CameraMode cameraMode = DJICameraSettingsDef.CameraMode.RecordVideo;
         switchCameraMode(cameraMode);
 
         final DJICamera camera = DroneXPApplication.getCameraInstance();
         if (camera != null) {
-            camera.startRecordVideo(new DJIBaseComponent.DJICompletionCallback(){
+            camera.startRecordVideo(new DJIBaseComponent.DJICompletionCallback() {
                 @Override
-                public void onResult(DJIError error)
-                {
+                public void onResult(DJIError error) {
                     if (error == null) {
                         showToast("Record video: success");
-                    }else {
+                    } else {
                         showToast(error.getDescription());
                     }
                 }
@@ -356,18 +372,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     // Method for stopping recording
-    private void stopRecord(){
+    private void stopRecord() {
 
         DJICamera camera = DroneXPApplication.getCameraInstance();
         if (camera != null) {
-            camera.stopRecordVideo(new DJIBaseComponent.DJICompletionCallback(){
+            camera.stopRecordVideo(new DJIBaseComponent.DJICompletionCallback() {
 
                 @Override
-                public void onResult(DJIError error)
-                {
-                    if(error == null) {
+                public void onResult(DJIError error) {
+                    if (error == null) {
                         showToast("Stop recording: success");
-                    }else {
+                    } else {
                         showToast(error.getDescription());
                     }
                 }
@@ -376,7 +391,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     }
 
-    private void switchCameraMode(DJICameraSettingsDef.CameraMode cameraMode){
+    private void switchCameraMode(DJICameraSettingsDef.CameraMode cameraMode) {
 
         DJICamera camera = DroneXPApplication.getCameraInstance();
         if (camera != null) {
@@ -401,6 +416,23 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private void disableControl() {
         mIsControlled = false;
+    }
+
+    private void normalMode() {
+        if (mActuator != null) {
+            mActuator.setSafeLimit(1.0F);
+        }
+    }
+
+    private void safeMode() {
+        if (mActuator != null) {
+            mActuator.setSafeLimit(0.1F);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
     class FeedbackLoopTask extends TimerTask {
