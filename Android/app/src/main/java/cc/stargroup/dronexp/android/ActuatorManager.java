@@ -21,7 +21,7 @@ public class ActuatorManager {
     }
 
     public void takeOff() {
-        if (mActivity.mFlightController != null) {
+        if (mActivity.isControlled() && mActivity.mFlightController != null) {
             mActivity.mFlightController.takeOff(new DJIBaseComponent.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
@@ -36,6 +36,7 @@ public class ActuatorManager {
     }
 
     public void autoLanding() {
+        //if (mActivity.isControlled())
         if (mActivity.mFlightController != null) {
             mActivity.mFlightController.autoLanding(new DJIBaseComponent.DJICompletionCallback() {
                 @Override
@@ -58,10 +59,12 @@ public class ActuatorManager {
         headRoll = headRoll > 30 ? 30 : headRoll;
         headRoll = headRoll < -30 ? -30 : headRoll;
 
-        float pPitch = xAxis * DJIVirtualStickRollPitchControlMaxVelocity;
-        float pRoll = headRoll * 1.0F / 30 * DJIVirtualStickRollPitchControlMaxVelocity;
+        float safeLimit = 0.01F;
+
+        float pPitch = xAxis * DJIVirtualStickRollPitchControlMaxVelocity * safeLimit;
+        float pRoll = headRoll * 1.0F / 30 * DJIVirtualStickRollPitchControlMaxVelocity * safeLimit;
         float pYaw = headYaw;
-        float pThrottle = -yAxis * DJIVirtualStickVerticalControlMaxVelocity;
+        float pThrottle = -yAxis * DJIVirtualStickVerticalControlMaxVelocity * safeLimit;
 
         if (flightController != null) {
             flightController.setVerticalControlMode(DJIFlightControllerDataType.DJIVirtualStickVerticalControlMode.Velocity);

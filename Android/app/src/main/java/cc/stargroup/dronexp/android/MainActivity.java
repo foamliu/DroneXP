@@ -43,6 +43,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     protected TextureView mVideoSurface = null;
     private SurfaceTextureListener mSurfaceListener;
     private SensorManager mSensorManager;
+    private ActuatorManager mActuator;
 
     public DJIFlightController mFlightController;
     public DJIRemoteController mRemoteController;
@@ -52,10 +53,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private FeedbackLoopTask mFeedbackLoopTask;
 
     String timeString;
-    boolean isVideoRecording;
+    boolean isVideoRecording = false;
+    boolean mIsControlled = false;
 
-    Button mRecordVideoModeBtn;
-    ToggleButton mRecordBtn;
+    //Button mRecordVideoModeBtn;
+    ToggleButton mRecordBtn, mControlButton;
+    Button mTakeOffBtn, mAutoLandingBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,9 +140,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onResume() {
-        if (mSensorManager == null) {
-            mSensorManager = new SensorManager(this);
+        if (mActuator == null) {
+            mActuator = new ActuatorManager(this);
         }
+        if (mSensorManager == null) {
+            mSensorManager = new SensorManager(this, mActuator);
+        }
+
         mSensorManager.registerListener();
 
         super.onResume();
@@ -193,8 +200,27 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
         });
 
-        mRecordVideoModeBtn = (Button) findViewById(R.id.btn_record_video_mode);
-        mRecordVideoModeBtn.setOnClickListener(this);
+        //mRecordVideoModeBtn = (Button) findViewById(R.id.btn_record_video_mode);
+        //mRecordVideoModeBtn.setOnClickListener(this);
+
+        mControlButton= (ToggleButton) findViewById(R.id.btn_control);
+        mControlButton.setOnClickListener(this);
+        mControlButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    enableControl();
+                } else {
+                    disableControl();
+                }
+            }
+        });
+
+        mTakeOffBtn = (Button) findViewById(R.id.btn_take_off);
+        mTakeOffBtn.setOnClickListener(this);
+
+        mAutoLandingBtn = (Button) findViewById(R.id.btn_auto_landing);
+        mAutoLandingBtn.setOnClickListener(this);
     }
 
     private void initTimer() {
@@ -279,8 +305,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_record_video_mode:{
-                switchCameraMode(DJICameraSettingsDef.CameraMode.RecordVideo);
+            //case R.id.btn_record_video_mode:{
+            //    switchCameraMode(DJICameraSettingsDef.CameraMode.RecordVideo);
+            //    break;
+            //}
+            case R.id.btn_take_off:{
+                mActuator.takeOff();
+                break;
+            }
+            case R.id.btn_auto_landing:{
+                mActuator.autoLanding();
                 break;
             }
             default:
@@ -296,10 +330,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
         return isVideoRecording;
     }
 
+    public boolean isControlled() {
+        return mIsControlled;
+    }
     // Method for starting recording
     private void startRecord(){
 
         DJICameraSettingsDef.CameraMode cameraMode = DJICameraSettingsDef.CameraMode.RecordVideo;
+        switchCameraMode(cameraMode);
+
         final DJICamera camera = DroneXPApplication.getCameraInstance();
         if (camera != null) {
             camera.startRecordVideo(new DJIBaseComponent.DJICompletionCallback(){
@@ -354,6 +393,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
             });
         }
 
+    }
+
+    private void enableControl() {
+        mIsControlled = true;
+    }
+
+    private void disableControl() {
+        mIsControlled = false;
     }
 
     class FeedbackLoopTask extends TimerTask {

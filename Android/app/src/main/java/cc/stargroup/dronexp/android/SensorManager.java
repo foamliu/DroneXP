@@ -43,9 +43,9 @@ public class SensorManager implements SensorEventListener {
     int directionPressed = -1; // initialized to -1
 
 
-    public SensorManager(MainActivity activity) {
+    public SensorManager(MainActivity activity, ActuatorManager actuator) {
         this.mActivity = activity;
-        this.mActuator = new ActuatorManager(activity);
+        this.mActuator = actuator;
 
         mSensorManager = (android.hardware.SensorManager) activity.getSystemService(activity.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -59,7 +59,9 @@ public class SensorManager implements SensorEventListener {
         str.append(" ").append(calculateOrientation(getHeadYaw()));
         str.append("Joystick X-Axis: ").append(mXAxis).append(", Y-Axis").append(mYAxis).append("\n");
 
-        mActuator.sendData(getHeadPitch(), getHeadRoll(), getHeadYaw(), mXAxis, mYAxis);
+        if (mActivity.isControlled()) {
+            mActuator.sendData(getHeadPitch(), getHeadRoll(), getHeadYaw(), mXAxis, mYAxis);
+        }
 
         if (mActivity.mFlightController != null) {
             DJIFlightControllerDataType.DJIAttitude attitude = mActivity.mFlightController.getCurrentState().getAttitude();
@@ -203,12 +205,16 @@ public class SensorManager implements SensorEventListener {
         if (event.getRepeatCount() == 0) {
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_BUTTON_A:
-                    mActuator.takeOff();
-                    handled = true;
+                    if (mActivity.isControlled()) {
+                        mActuator.takeOff();
+                        handled = true;
+                    }
                     break;
                 case KeyEvent.KEYCODE_BUTTON_B:
-                    mActuator.autoLanding();
-                    handled = true;
+                    if (mActivity.isControlled()) {
+                        mActuator.autoLanding();
+                        handled = true;
+                    }
                     break;
                 default:
                     handled = true;
