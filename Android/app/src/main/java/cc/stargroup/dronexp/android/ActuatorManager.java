@@ -86,8 +86,8 @@ public class ActuatorManager {
             throttle = 0.0F;
         }
 
-        float pPitch = yAxis * DJIVirtualStickRollPitchControlMaxVelocity * mSafeLimit;
-        float pRoll = xAxis * DJIVirtualStickRollPitchControlMaxVelocity * mSafeLimit;
+        float pPitch = xAxis * DJIVirtualStickRollPitchControlMaxVelocity * mSafeLimit;
+        float pRoll = yAxis * DJIVirtualStickRollPitchControlMaxVelocity * mSafeLimit;
         float pYaw = headYaw;
         float pThrottle = throttle * DJIVirtualStickVerticalControlMaxVelocity * mSafeLimit;
 
