@@ -9,26 +9,32 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.baofeng.mojing.MojingVrActivity;
-import com.baofeng.mojing.input.base.MojingInputCallback;
+import android.widget.ToggleButton;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 import dji.sdk.Camera.DJICamera;
 import dji.sdk.Camera.DJICamera.CameraReceivedVideoDataCallback;
+import dji.sdk.Camera.DJICameraSettingsDef;
 import dji.sdk.FlightController.DJIFlightController;
 import dji.sdk.Gimbal.DJIGimbal;
 import dji.sdk.Products.DJIAircraft;
 import dji.sdk.RemoteController.DJIRemoteController;
+import dji.sdk.base.DJIBaseComponent;
+import dji.sdk.base.DJIError;
 
 
-public class MainActivity extends MojingVrActivity implements MojingInputCallback {
+public class MainActivity extends Activity implements View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getName();
     private Logger logger = new Logger();
@@ -37,6 +43,7 @@ public class MainActivity extends MojingVrActivity implements MojingInputCallbac
     protected TextureView mVideoSurface = null;
     private SurfaceTextureListener mSurfaceListener;
     private SensorManager mSensorManager;
+    private ActuatorManager mActuator;
 
     public DJIFlightController mFlightController;
     public DJIRemoteController mRemoteController;
@@ -44,6 +51,14 @@ public class MainActivity extends MojingVrActivity implements MojingInputCallbac
 
     private Timer mFeedbackLoopTimer;
     private FeedbackLoopTask mFeedbackLoopTask;
+
+    String timeString;
+    boolean isVideoRecording = false;
+    boolean mIsControlled = false;
+
+    //Button mRecordVideoModeBtn;
+    ToggleButton mRecordBtn, mControlBtn, mSafeModeBtn;
+    Button mTakeOffBtn, mAutoLandingBtn, mGoHomeBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +90,27 @@ public class MainActivity extends MojingVrActivity implements MojingInputCallbac
         IntentFilter filter = new IntentFilter();
         filter.addAction(DroneXPApplication.FLAG_CONNECTION_CHANGE);
         registerReceiver(mReceiver, filter);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        DJICamera camera = DroneXPApplication.getCameraInstance();
+
+        if (camera != null) {
+            camera.setDJICameraUpdatedSystemStateCallback(new DJICamera.CameraUpdatedSystemStateCallback() {
+                @Override
+                public void onResult(DJICamera.CameraSystemState cameraSystemState) {
+                    if (null != cameraSystemState) {
+
+                        int recordTime = cameraSystemState.getCurrentVideoRecordingTimeInSeconds();
+                        int minutes = (recordTime % 3600) / 60;
+                        int seconds = recordTime % 60;
+
+                        timeString = String.format("%02d:%02d", minutes, seconds);
+                        isVideoRecording = cameraSystemState.isRecording();
+                    }
+                }
+            });
+        }
     }
 
     private void initPermissions() {
@@ -104,10 +140,13 @@ public class MainActivity extends MojingVrActivity implements MojingInputCallbac
 
     @Override
     public void onResume() {
-        logger.appendLog("onResume");
-        if (mSensorManager == null) {
-            mSensorManager = new SensorManager(this);
+        if (mActuator == null) {
+            mActuator = new ActuatorManager(this);
         }
+        if (mSensorManager == null) {
+            mSensorManager = new SensorManager(this, mActuator);
+        }
+
         mSensorManager.registerListener();
 
         super.onResume();
@@ -115,7 +154,6 @@ public class MainActivity extends MojingVrActivity implements MojingInputCallbac
 
     @Override
     public void onPause() {
-        logger.appendLog("onPause");
         uninitPreviewer();
         mSensorManager.unregisterListener();
         super.onPause();
@@ -148,6 +186,57 @@ public class MainActivity extends MojingVrActivity implements MojingInputCallbac
         mVideoSurface = (TextureView) findViewById(R.id.video_surface);
 
         setSurfaceListener();
+
+        mRecordBtn = (ToggleButton) findViewById(R.id.btn_record);
+        mRecordBtn.setOnClickListener(this);
+        mRecordBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    startRecord();
+                } else {
+                    stopRecord();
+                }
+            }
+        });
+
+        //mRecordVideoModeBtn = (Button) findViewById(R.id.btn_record_video_mode);
+        //mRecordVideoModeBtn.setOnClickListener(this);
+
+        mControlBtn = (ToggleButton) findViewById(R.id.btn_control);
+        mControlBtn.setOnClickListener(this);
+        mControlBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    enableControl();
+                } else {
+                    disableControl();
+                }
+            }
+        });
+
+        mTakeOffBtn = (Button) findViewById(R.id.btn_take_off);
+        mTakeOffBtn.setOnClickListener(this);
+
+        mAutoLandingBtn = (Button) findViewById(R.id.btn_auto_landing);
+        mAutoLandingBtn.setOnClickListener(this);
+
+        mSafeModeBtn = (ToggleButton) findViewById(R.id.btn_safe_mode);
+        mSafeModeBtn.setOnClickListener(this);
+        mSafeModeBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    normalMode();
+                } else {
+                    safeMode();
+                }
+            }
+        });
+
+        mGoHomeBtn = (Button) findViewById(R.id.btn_go_home);
+        mGoHomeBtn.setOnClickListener(this);
     }
 
     private void initTimer() {
@@ -215,48 +304,135 @@ public class MainActivity extends MojingVrActivity implements MojingInputCallbac
     }
 
     @Override
+    public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        if (this.mSensorManager.dispatchGenericMotionEvent(event))
+            return true;
+        return super.dispatchGenericMotionEvent(event);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (mSensorManager.dispatchKeyEvent(event))
+            return true;
+        else
+            return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_go_home:{
+                mActuator.goHome();
+                break;
+            }
+            case R.id.btn_take_off: {
+                mActuator.takeOff();
+                break;
+            }
+            case R.id.btn_auto_landing: {
+                mActuator.autoLanding();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    public String getTimeString() {
+        return timeString;
+    }
+
+    public boolean isVideoRecording() {
+        return isVideoRecording;
+    }
+
+    public boolean isControlled() {
+        return mIsControlled;
+    }
+
+    // Method for starting recording
+    private void startRecord() {
+
+        DJICameraSettingsDef.CameraMode cameraMode = DJICameraSettingsDef.CameraMode.RecordVideo;
+        switchCameraMode(cameraMode);
+
+        final DJICamera camera = DroneXPApplication.getCameraInstance();
+        if (camera != null) {
+            camera.startRecordVideo(new DJIBaseComponent.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError error) {
+                    if (error == null) {
+                        showToast("Record video: success");
+                    } else {
+                        showToast(error.getDescription());
+                    }
+                }
+            }); // Execute the startRecordVideo API
+        }
+    }
+
+    // Method for stopping recording
+    private void stopRecord() {
+
+        DJICamera camera = DroneXPApplication.getCameraInstance();
+        if (camera != null) {
+            camera.stopRecordVideo(new DJIBaseComponent.DJICompletionCallback() {
+
+                @Override
+                public void onResult(DJIError error) {
+                    if (error == null) {
+                        showToast("Stop recording: success");
+                    } else {
+                        showToast(error.getDescription());
+                    }
+                }
+            }); // Execute the stopRecordVideo API
+        }
+
+    }
+
+    private void switchCameraMode(DJICameraSettingsDef.CameraMode cameraMode) {
+
+        DJICamera camera = DroneXPApplication.getCameraInstance();
+        if (camera != null) {
+            camera.setCameraMode(cameraMode, new DJIBaseComponent.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError error) {
+
+                    if (error == null) {
+                        showToast("Switch Camera Mode Succeeded");
+                    } else {
+                        showToast(error.getDescription());
+                    }
+                }
+            });
+        }
+
+    }
+
+    private void enableControl() {
+        mIsControlled = true;
+    }
+
+    private void disableControl() {
+        mIsControlled = false;
+    }
+
+    private void normalMode() {
+        if (mActuator != null) {
+            mActuator.setSafeLimit(1.0F);
+        }
+    }
+
+    private void safeMode() {
+        if (mActuator != null) {
+            mActuator.setSafeLimit(0.1F);
+        }
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
-    }
-
-    @Override
-    public boolean onMojingKeyDown(String s, int i) {
-        return false;
-    }
-
-    @Override
-    public boolean onMojingKeyUp(String s, int i) {
-        return false;
-    }
-
-    @Override
-    public boolean onMojingKeyLongPress(String s, int i) {
-        return false;
-    }
-
-    @Override
-    public boolean onMojingMove(String s, int i, float v, float v1, float v2) {
-        return false;
-    }
-
-    @Override
-    public boolean onMojingMove(String s, int i, float v) {
-        return false;
-    }
-
-    @Override
-    public void onMojingDeviceAttached(String s) {
-
-    }
-
-    @Override
-    public void onMojingDeviceDetached(String s) {
-
-    }
-
-    @Override
-    public void onBluetoothAdapterStateChanged(int i) {
-
     }
 
     class FeedbackLoopTask extends TimerTask {

@@ -1,1 +1,1 @@
-include ':app', ':dJISDKLIB', ":MojingSDK"
+include ':app', ':dJISDKLIB'

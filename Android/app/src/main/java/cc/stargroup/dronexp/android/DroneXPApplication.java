@@ -29,7 +29,7 @@ public class DroneXPApplication extends Application {
     private static DJIBaseProduct mProduct;
 
     private Handler mHandler;
-
+    private Logger logger = new Logger();
     /**
      * This function is used to get the instance of DJIBaseProduct.
      * If no product is connected, it returns null.
@@ -65,6 +65,17 @@ public class DroneXPApplication extends Application {
         mHandler = new Handler(Looper.getMainLooper());
         //This is used to start SDK services and initiate SDK.
         DJISDKManager.getInstance().initSDKManager(this, mDJISDKManagerCallback);
+
+        // Setup handler for uncaught exceptions.
+        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
+        {
+            @Override
+            public void uncaughtException (Thread thread, Throwable e)
+            {
+                logger.appendLog(e.getMessage());
+                logger.appendLog(e.toString());
+            }
+        });
     }
 
     /**
