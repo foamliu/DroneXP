@@ -1,66 +1,9 @@
 extends layout
 
 block head
-    title 准备穿越
+    title 产品介绍
 
 block body
-    //.active-title 准备穿越
-    div(id="container", style="width:500px; height:300px")
-
-    script(src="http://webapi.amap.com/maps?v=1.3&key=1eb5c8044bf3a789d2876ae58d03ab18&callback=init")
-    script.
-        function onSuccess(position){
-            console.log("onSuccess");
-
-            var latitude = position.coords.latitude; //纬度
-            var longitude = position.coords.longitude; //经度
-            var altitude = position.coords.altitude; //海拔
-            var accuracy = position.coords.accuracy; //精确度
-            console.log(latitude + ", " + longitude + ", " + altitude + ", " + accuracy);
-            //alert(latitude + ", " + longitude + ", " + altitude + ", " + accuracy)
-
-            var map = new AMap.Map('container', {
-                resizeEnable: true,
-                zoom:15,
-                center: [longitude, latitude]
-            });
-
-            var marker = new AMap.Marker({
-                position: [longitude, latitude]
-            });
-            marker.setMap(map);
-        }
-    script.
-        function onError(error){
-            console.log("onError");
-
-            console.log(error.code);
-            console.log(error.message);
-            alert(error.message)
-        }
-    script.
-        function init(){
-            console.log("init");
-
-            var container = document.getElementById("container");
-            var width = window.screen.width - window.innerWidth > 0 ? window.innerWidth : window.screen.width;
-            var height = window.screen.height - window.innerHeight > 0 ? window.innerHeight : window.screen.height;
-            container.style.width = width + "px";
-            container.style.height = height + "px";
-
-            var map = new AMap.Map('container', {
-                center: [121.48, 31.05], // 上海
-                zoom: 6
-            });
-            map.plugin(["AMap.ToolBar"], function() {
-                map.addControl(new AMap.ToolBar());
-            });
-
-            if (navigator.geolocation){
-                // timeout at 1000 milliseconds (1 seconds)
-                var options = {timeout:1000};
-                navigator.geolocation.getCurrentPosition(onSuccess, onError, options);
-            }
-        }
-
-
+    .active-title 产品介绍
+    .active-container
+        p.text-indent 通过互联网，基于共享经济的理念，把旅游资源（场景）通过无人机和虚拟现实技术逼真的呈现在用户面前。用户可以在上海家中客厅的沙发上，享受在科罗拉多大峡谷上空第一人称视角的飞行体验。
