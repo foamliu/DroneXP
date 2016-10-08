@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: '空间穿越' });
+  res.render('index', { title: '产品介绍' });
 });
 
 module.exports = router;
