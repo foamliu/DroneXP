@@ -52,3 +52,9 @@ a, article, aside, blockquote, body, button, code, dd, details, div, dl, dt, fie
   font-size: 1rem;
   display: table-cell;
 }
+
+.webchat-code img {
+  width: 50%;
+  display: block; 
+  margin: 0 auto;
+}
