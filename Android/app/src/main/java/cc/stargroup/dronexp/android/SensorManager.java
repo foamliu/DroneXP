@@ -163,7 +163,7 @@ public class SensorManager implements SensorEventListener {
             return false;
         } else {
             String deviceName = getUniqueName(input);
-            logger.appendLog(deviceName);
+            //logger.appendLog(deviceName);
             // Check that the event came from a game controller
             if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) ==
                     InputDevice.SOURCE_JOYSTICK &&

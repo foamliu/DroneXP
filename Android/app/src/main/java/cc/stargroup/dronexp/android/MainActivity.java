@@ -243,7 +243,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         if (null == mFeedbackLoopTimer) {
             mFeedbackLoopTask = new FeedbackLoopTask();
             mFeedbackLoopTimer = new Timer();
-            mFeedbackLoopTimer.schedule(mFeedbackLoopTask, 0, 200);
+            mFeedbackLoopTimer.schedule(mFeedbackLoopTask, 0, 100);
         }
     }
 
