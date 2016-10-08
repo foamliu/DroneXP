@@ -1,34 +1,34 @@
 body {
-  width: 100%;
-  min-height: 100%;
-  position: absolute;
-  background: #FAFAFA;
-  box-sizing: border-box;
+    width: 100%;
+    min-height: 100%;
+    position: absolute;
+    background: #FAFAFA;
+    box-sizing: border-box;
 }
 
 a, article, aside, blockquote, body, button, code, dd, details, div, dl, dt, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, input, legend, li, menu, nav, ol, p, pre, section, td, textarea, th, ul {
-  margin: 0;
-  border: 0;
-  padding: 0;
-  outline: 0;
-  font-family: "微软雅黑",'Microsoft Yahei','Hiragino Sans GB',tahoma,arial,"宋体";
-  box-sizing: border-box;
-  background-repeat: no-repeat;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    outline: 0;
+    font-family: "微软雅黑",'Microsoft Yahei','Hiragino Sans GB',tahoma,arial,"宋体";
+    box-sizing: border-box;
+    background-repeat: no-repeat;
 }
 
 .active-title {
-  font-size: 1.6rem;
-  text-align: center;
-  margin-top: 1.3rem;
+    font-size           : 1.6rem;
+    text-align          : center;
+    margin-top          : 1.30rem;
 }
 
 .active-container {
-  width: auto;
-  border: 1px solid #e6e6e6;
-  box-sizing: border-box;
-  padding: 1.3rem .65rem;
-  margin: 1.3rem 1.3rem 3.1rem;
-  background: #fff;
+    width               : auto;
+    border              : 1px solid #e6e6e6;
+    box-sizing          : border-box;
+    padding             : 1.30rem .65rem;
+    margin              : 1.30rem 1.30rem 3.1rem 1.30rem;
+    background          : #fff;
 }
 
 .active-container .text-indent {
@@ -36,25 +36,27 @@ a, article, aside, blockquote, body, button, code, dd, details, div, dl, dt, fie
 }
 
 .active-container p {
-  font-size: 1rem;
-  line-height: 1.6rem;
-  color: #566b85;
+    font-size   : .8rem;
+    line-height : 1.6rem;
+    color       : #566b85;
 }
 
 .active-container p .tl {
-  font-size: 1rem;
-  display: table-cell;
-  vertical-align: top;
-  min-width: 4.3rem;
+    font-size   : .8rem;
+    display : table-cell;
+    vertical-align : top;
+    min-width : 4.3rem;
 }
 
 .active-container p .tr {
-  font-size: 1rem;
-  display: table-cell;
+    font-size   : .8rem;
+    display : table-cell;
 }
 
 .webchat-code img {
-  width: 50%;
-  display: block; 
-  margin: 0 auto;
+    width: 50%;
+    display: block; 
+    margin: 0 auto;
+    margin-bottom       : 3rem;
+    margin-top          : .65rem;
 }
