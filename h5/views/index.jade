@@ -7,3 +7,11 @@ block body
     .active-title 产品介绍
     .active-container
         p.text-indent 通过互联网，基于共享经济的理念，把旅游资源（场景）通过无人机和虚拟现实技术逼真的呈现在用户面前。用户可以在上海家中客厅的沙发上，享受在科罗拉多大峡谷上空第一人称视角的飞行体验。
+
+    div(id="youkuplayer", style="width:480px;height:400px")
+    script(src="http://player.youku.com/jsapi").
+        player = new YKU.Player('youkuplayer',{
+            client_id:'6c1c8a9ed1e2fcb9',
+            vid:'XMTc1NDIxNTg4NA==',
+            autoplay: true
+        });
