@@ -7,6 +7,7 @@ import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIError;
 
 import static dji.sdk.FlightController.DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMaxVelocity;
+import static dji.sdk.FlightController.DJIFlightControllerDataType.DJIVirtualStickRollPitchControlMinVelocity;
 import static dji.sdk.FlightController.DJIFlightControllerDataType.DJIVirtualStickVerticalControlMaxVelocity;
 
 /**
@@ -84,18 +85,20 @@ public class ActuatorManager {
         float throttle = 0.0F;
         if (isDownPressed) {
             throttle = -1.0F;
-        }
-        else if (isUpPressed) {
+        } else if (isUpPressed) {
             throttle = +1.0F;
-        }
-        else {
+        } else {
             throttle = 0.0F;
         }
 
-        float pPitch = xAxis * DJIVirtualStickRollPitchControlMaxVelocity * mSafeLimit;
-        float pRoll = -yAxis * DJIVirtualStickRollPitchControlMaxVelocity * mSafeLimit;
-        float pYaw = headYaw;
-        float pThrottle = throttle * DJIVirtualStickVerticalControlMaxVelocity * mSafeLimit;
+        final float pPitch = bound(xAxis * DJIVirtualStickRollPitchControlMaxVelocity * mSafeLimit,
+                                DJIVirtualStickRollPitchControlMinVelocity,
+                                DJIVirtualStickRollPitchControlMaxVelocity);
+        final float pRoll = bound(-yAxis * DJIVirtualStickRollPitchControlMaxVelocity * mSafeLimit,
+                                DJIVirtualStickRollPitchControlMinVelocity,
+                                DJIVirtualStickRollPitchControlMaxVelocity);
+        final float pYaw = headYaw;
+        final float pThrottle = throttle * DJIVirtualStickVerticalControlMaxVelocity * mSafeLimit;
 
         if (flightController != null && flightController.isConnected()) {
             if (!isFlightControllerReady) {
@@ -131,13 +134,14 @@ public class ActuatorManager {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {
-                        final String message = "sendVirtualStickFlightControlData: " + djiError.getDescription();
-                        logger.appendLog(message);
+                        final StringBuilder message = new StringBuilder("sendVirtualStickFlightControlData: " + djiError.getDescription());
+                        message.append(" pPitch=" + pPitch + ", pRoll=" + pRoll + ", pYaw=" + pYaw + ", pThrottle=" + pThrottle);
+                        logger.appendLog(message.toString());
 
                         mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mActivity.showToast(message);
+                                mActivity.showToast(message.toString());
                             }
                         });
                     }
@@ -174,7 +178,7 @@ public class ActuatorManager {
                         roll = new DJIGimbal.DJIGimbalAngleRotation(false, 0, DJIGimbal.DJIGimbalRotateDirection.CounterClockwise);
                 DJIGimbal.DJIGimbalAngleRotation
                         yaw = new DJIGimbal.DJIGimbalAngleRotation(false, 0, DJIGimbal.DJIGimbalRotateDirection.CounterClockwise);
-                gimbal.rotateGimbalByAngle(DJIGimbal.DJIGimbalRotateAngleMode.AbsoluteAngle, pitch, roll, yaw, new DJIBaseComponent.DJICompletionCallback(){
+                gimbal.rotateGimbalByAngle(DJIGimbal.DJIGimbalRotateAngleMode.AbsoluteAngle, pitch, roll, yaw, new DJIBaseComponent.DJICompletionCallback() {
                     @Override
                     public void onResult(DJIError djiError) {
                         if (djiError != null) {
@@ -198,6 +202,16 @@ public class ActuatorManager {
 
     public void setSafeLimit(float safeLimit) {
         this.mSafeLimit = safeLimit;
+    }
+
+    private float bound(float value, float min, float max) {
+        if (value > max) {
+            value = max;
+        }
+        if (value < min) {
+            value = min;
+        }
+        return value;
     }
 
 }
