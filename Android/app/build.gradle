@@ -8,9 +8,9 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
-        //ndk {
-        //    abiFilters "armeabi-v7a"
-        //}
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
     }
     buildTypes {
         release {
@@ -18,15 +18,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    sourceSets {
-        main {
-            jniLibs.srcDir 'libs'
-        }
-    }
 }
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:design:23.3.0'
     compile project(':dJISDKLIB')
-    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
 }

@@ -7,8 +7,13 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
+import java.util.List;
+
+import dji.sdk.Battery.DJIBattery;
 import dji.sdk.FlightController.DJIFlightControllerDataType;
 import dji.sdk.Gimbal.DJIGimbal;
+import dji.sdk.base.DJIBaseComponent;
+import dji.sdk.base.DJIError;
 
 /**
  * Created by Foam on 2016/9/25.
@@ -43,6 +48,8 @@ public class SensorManager implements SensorEventListener {
 
     public void Sense() {
 
+        DJIBattery battery = mActivity.mBattery;
+
         final StringBuilder str = new StringBuilder();
         str.append(String.format("Head -> pitch=%f roll=%f yaw=%f", getHeadPitch(), getHeadRoll(), getHeadYaw()));
         str.append(" ").append(calculateOrientation(getHeadYaw()));
@@ -73,6 +80,26 @@ public class SensorManager implements SensorEventListener {
 
         if (mActivity.isVideoRecording()) {
             str.append("Recording=").append(mActivity.getTimeString()).append("\n");
+        }
+
+        if (battery != null && battery.isConnected()) {
+            final int numOFCell = battery.getNumberOfCell();
+            str.append(numOFCell + " cells, ");
+            battery.getCellVoltages(new DJIBaseComponent.DJICompletionCallbackWith<List<DJIBattery.DJIBatteryCell>>() {
+                @Override
+                public void onSuccess(List<DJIBattery.DJIBatteryCell> djiBatteryCells) {
+                    for (int i=0;i<numOFCell;i++) {
+                        DJIBattery.DJIBatteryCell cell =  djiBatteryCells.get(i);
+                        str.append(cell.getVoltage() + " V, ");
+                    }
+                }
+
+                @Override
+                public void onFailure(DJIError djiError) {
+                    final StringBuilder message = new StringBuilder("getCellVoltages: " + djiError.getDescription());
+                    logger.appendLog(message.toString());
+                }
+            });
         }
 
         mActivity.showText(str.toString());

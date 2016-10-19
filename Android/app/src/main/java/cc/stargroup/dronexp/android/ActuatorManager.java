@@ -16,7 +16,7 @@ import static dji.sdk.FlightController.DJIFlightControllerDataType.DJIVirtualSti
 public class ActuatorManager {
     Logger logger = new Logger();
     MainActivity mActivity;
-    float mSafeLimit = 0.1F;
+    float mSafeLimit = 1.0F;
     boolean isFlightControllerReady = false;
     boolean isGimbalReady = false;
 
@@ -200,9 +200,9 @@ public class ActuatorManager {
         }
     }
 
-    public void setSafeLimit(float safeLimit) {
-        this.mSafeLimit = safeLimit;
-    }
+//    public void setSafeLimit(float safeLimit) {
+//        this.mSafeLimit = safeLimit;
+//    }
 
     private float bound(float value, float min, float max) {
         if (value > max) {
