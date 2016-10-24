@@ -79,8 +79,12 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
     private boolean isVideoRecording = false;
     private boolean mIsControlled = false;
 
-    private ToggleButton mRecordBtn, mControlBtn;
-    private Button mTakeOffBtn, mAutoLandingBtn, mGoHomeBtn;
+    private ToggleButton mRecordBtn;
+    private ToggleButton mControlBtn;
+    private ToggleButton mScreenShotBtn;
+    private Button mTakeOffBtn;
+    private Button mAutoLandingBtn;
+    private Button mGoHomeBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -222,6 +226,19 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
 
         mGoHomeBtn = (Button) findViewById(R.id.btn_go_home);
         mGoHomeBtn.setOnClickListener(this);
+
+        mScreenShotBtn = (ToggleButton) findViewById(R.id.btn_screenshot);
+        mScreenShotBtn.setOnClickListener(this);
+        mScreenShotBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    DJIVideoStreamDecoder.getInstance().changeSurface(null);
+                } else {
+                    DJIVideoStreamDecoder.getInstance().changeSurface(mSurfaceHolder.getSurface());
+                }
+            }
+        });
     }
 
     private void initTimer() {

@@ -73,6 +73,18 @@
             android:textSize="12dp"
             android:checked="false" />
 
+        <ToggleButton
+            android:id="@+id/btn_screenshot"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Screen Shot"
+            android:textOff="Screen Shot"
+            android:textOn="Live Stream"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:textSize="12dp"
+            android:checked="false" />
+
         <!--<ToggleButton-->
             <!--android:id="@+id/btn_safe_mode"-->
             <!--android:layout_width="0dp"-->
