@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +28,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.dji.videostreamdecodingsample.media.DJIVideoStreamDecoder;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -35,11 +38,11 @@ import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.dji.videostreamdecodingsample.media.DJIVideoStreamDecoder;
 import dji.sdk.Battery.DJIBattery;
 import dji.sdk.Camera.DJICamera;
 import dji.sdk.Camera.DJICamera.CameraReceivedVideoDataCallback;
 import dji.sdk.Camera.DJICameraSettingsDef;
+import dji.sdk.Codec.DJICodecManager;
 import dji.sdk.FlightController.DJIFlightController;
 import dji.sdk.Gimbal.DJIGimbal;
 import dji.sdk.Products.DJIAircraft;
@@ -57,7 +60,10 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
     private TextureView mVideoSurface = null;
     private SurfaceView mSurfaceView = null;
     private SurfaceHolder mSurfaceHolder;
-    private SurfaceTextureListener mSurfaceListener;
+
+    // Codec for video live view
+    protected DJICodecManager mCodecManager = null;
+
     private SensorManager mSensorManager;
     private ActuatorManager mActuator;
 
@@ -69,14 +75,12 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
     private Timer mFeedbackLoopTimer;
     private FeedbackLoopTask mFeedbackLoopTask;
 
-    String timeString;
-    boolean isVideoRecording = false;
-    boolean mIsControlled = false;
+    private String timeString;
+    private boolean isVideoRecording = false;
+    private boolean mIsControlled = false;
 
-    //Button mRecordVideoModeBtn;
-    ToggleButton mRecordBtn, mControlBtn;
-    //ToggleButton mSafeModeBtn;
-    Button mTakeOffBtn, mAutoLandingBtn, mGoHomeBtn;
+    private ToggleButton mRecordBtn, mControlBtn;
+    private Button mTakeOffBtn, mAutoLandingBtn, mGoHomeBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,25 +89,11 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
         initPermissions();
         setContentView(R.layout.activity_main);
 
-        mSurfaceListener = new SurfaceTextureListener(this);
-
-        // The callback for receiving the raw H264 video data for camera live view
-        mReceivedVideoDataCallBack = new CameraReceivedVideoDataCallback() {
-
-            @Override
-            public void onResult(byte[] videoBuffer, int size) {
-                if (mSurfaceListener.getCodecManager() != null) {
-                    // Send the raw H264 video data to codec manager for decoding
-                    //mSurfaceListener.getCodecManager().sendDataToDecoder(videoBuffer, size);
-                    DJIVideoStreamDecoder.getInstance().parse(videoBuffer, size);
-                    //logger.appendLog("camera recv video data size: " + size);
-                } else {
-                    logger.appendLog("mSurfaceListener.getCodecManager() is null");
-                }
-            }
-        };
+        this.mActuator = new ActuatorManager(this);
+        this.mSensorManager = new SensorManager(this, mActuator);
 
         initUI();
+        initPreviewer();
         initTimer();
 
         // Register the broadcast receiver for receiving the device connection's changes.
@@ -112,25 +102,6 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
         registerReceiver(mReceiver, filter);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        DJICamera camera = DroneXPApplication.getCameraInstance();
-
-        if (camera != null) {
-            camera.setDJICameraUpdatedSystemStateCallback(new DJICamera.CameraUpdatedSystemStateCallback() {
-                @Override
-                public void onResult(DJICamera.CameraSystemState cameraSystemState) {
-                    if (null != cameraSystemState) {
-
-                        int recordTime = cameraSystemState.getCurrentVideoRecordingTimeInSeconds();
-                        int minutes = (recordTime % 3600) / 60;
-                        int seconds = recordTime % 60;
-
-                        timeString = String.format("%02d:%02d", minutes, seconds);
-                        isVideoRecording = cameraSystemState.isRecording();
-                    }
-                }
-            });
-        }
     }
 
     private void initPermissions() {
@@ -160,43 +131,36 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
 
     @Override
     public void onResume() {
-        if (mActuator == null) {
-            mActuator = new ActuatorManager(this);
-        }
-        if (mSensorManager == null) {
-            mSensorManager = new SensorManager(this, mActuator);
-        }
-
         mSensorManager.registerListener();
+        DJIVideoStreamDecoder.getInstance().resume();
 
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        uninitPreviewer();
         mSensorManager.unregisterListener();
+        DJIVideoStreamDecoder.getInstance().stop();
+
         super.onPause();
     }
 
     @Override
     public void onStop() {
         logger.appendLog("onStop");
-
         super.onStop();
     }
 
     public void onReturn(View view) {
         logger.appendLog("onReturn");
-
         this.finish();
     }
 
     @Override
     protected void onDestroy() {
         logger.appendLog("onDestroy");
+        DJIVideoStreamDecoder.getInstance().destroy();
 
-        uninitPreviewer();
         super.onDestroy();
     }
 
@@ -224,8 +188,6 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
             }
         });
 
-        setSurfaceListener();
-
         mRecordBtn = (ToggleButton) findViewById(R.id.btn_record);
         mRecordBtn.setOnClickListener(this);
         mRecordBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -238,9 +200,6 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
                 }
             }
         });
-
-        //mRecordVideoModeBtn = (Button) findViewById(R.id.btn_record_video_mode);
-        //mRecordVideoModeBtn.setOnClickListener(this);
 
         mControlBtn = (ToggleButton) findViewById(R.id.btn_control);
         mControlBtn.setOnClickListener(this);
@@ -261,19 +220,6 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
         mAutoLandingBtn = (Button) findViewById(R.id.btn_auto_landing);
         mAutoLandingBtn.setOnClickListener(this);
 
-//        mSafeModeBtn = (ToggleButton) findViewById(R.id.btn_safe_mode);
-//        mSafeModeBtn.setOnClickListener(this);
-//        mSafeModeBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if (isChecked) {
-//                    normalMode();
-//                } else {
-//                    safeMode();
-//                }
-//            }
-//        });
-
         mGoHomeBtn = (Button) findViewById(R.id.btn_go_home);
         mGoHomeBtn.setOnClickListener(this);
     }
@@ -282,15 +228,10 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
         if (null == mFeedbackLoopTimer) {
             mFeedbackLoopTask = new FeedbackLoopTask();
             mFeedbackLoopTimer = new Timer();
-            mFeedbackLoopTimer.schedule(mFeedbackLoopTask, 0, 100);
+            mFeedbackLoopTimer.schedule(mFeedbackLoopTask, 0, 100); //10Hz
         }
     }
 
-    private void setSurfaceListener() {
-        if (null != mVideoSurface) {
-            mVideoSurface.setSurfaceTextureListener(mSurfaceListener);
-        }
-    }
 
     private void initFlightController() {
 
@@ -308,22 +249,64 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
             mBattery = aircraft.getBattery();
 
             logger.appendLog("aircraft is: " + aircraft.getModel().getDisplayName());
-            setSurfaceListener();
 
             DJICamera camera = aircraft.getCamera();
             if (camera != null) {
                 // Set the callback
-                camera.setDJICameraReceivedVideoDataCallback(mReceivedVideoDataCallBack);
+                camera.setDJICameraReceivedVideoDataCallback(new CameraReceivedVideoDataCallback() {
+                    @Override
+                    public void onResult(byte[] videoBuffer, int size) {
+                        // The callback for receiving the raw H264 video data for camera live view
+                        DJIVideoStreamDecoder.getInstance().parse(videoBuffer, size);
+                    }
+                });
+
+                camera.setDJICameraUpdatedSystemStateCallback(new DJICamera.CameraUpdatedSystemStateCallback() {
+                    @Override
+                    public void onResult(DJICamera.CameraSystemState cameraSystemState) {
+                        if (null != cameraSystemState) {
+
+                            int recordTime = cameraSystemState.getCurrentVideoRecordingTimeInSeconds();
+                            int minutes = (recordTime % 3600) / 60;
+                            int seconds = recordTime % 60;
+
+                            timeString = String.format("%02d:%02d", minutes, seconds);
+                            isVideoRecording = cameraSystemState.isRecording();
+                        }
+                    }
+                });
             }
         }
     }
 
-    private void uninitPreviewer() {
-        DJICamera camera = DroneXPApplication.getCameraInstance();
-        if (camera != null) {
-            // Reset the callback
-            DroneXPApplication.getCameraInstance().setDJICameraReceivedVideoDataCallback(null);
-        }
+    /**
+     * Init a fake texture view to for the codec manager, so that the video raw data can be received
+     * by the camera
+     */
+    private void initPreviewer() {
+        mVideoSurface.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
+            @Override
+            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+                Log.d(TAG, "real onSurfaceTextureAvailable");
+                if (mCodecManager == null) {
+                    mCodecManager = new DJICodecManager(getApplicationContext(), surface, width, height);
+                }
+            }
+
+            @Override
+            public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+            }
+
+            @Override
+            public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                return false;
+            }
+
+            @Override
+            public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+            }
+        });
     }
 
     public void showToast(final String msg) {
@@ -361,7 +344,7 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_go_home:{
+            case R.id.btn_go_home: {
                 mActuator.goHome();
                 break;
             }
@@ -458,18 +441,6 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
         mIsControlled = false;
     }
 
-//    private void normalMode() {
-//        if (mActuator != null) {
-//            mActuator.setSafeLimit(1.0F);
-//        }
-//    }
-//
-//    private void safeMode() {
-//        if (mActuator != null) {
-//            mActuator.setSafeLimit(0.1F);
-//        }
-//    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -514,11 +485,11 @@ public class MainActivity extends Activity implements View.OnClickListener, DJIV
                 bytes[y.length + (i * 2)] = nv[i];
                 bytes[y.length + (i * 2) + 1] = nu[i];
             }
-            String msg =  "onYuvDataReceived: frame index: "
+            String msg = "onYuvDataReceived: frame index: "
                     + DJIVideoStreamDecoder.getInstance().frameIndex
                     + ",array length: "
                     + bytes.length;
-            Log.d(TAG,msg);
+            Log.d(TAG, msg);
             logger.appendLog(msg);
             screenShot(bytes, Environment.getExternalStorageDirectory() + "/DJI_ScreenShot");
         }

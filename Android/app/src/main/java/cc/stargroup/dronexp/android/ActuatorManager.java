@@ -14,11 +14,11 @@ import static dji.sdk.FlightController.DJIFlightControllerDataType.DJIVirtualSti
  * Created by Foam on 2016/9/25.
  */
 public class ActuatorManager {
-    Logger logger = new Logger();
-    MainActivity mActivity;
-    float mSafeLimit = 1.0F;
-    boolean isFlightControllerReady = false;
-    boolean isGimbalReady = false;
+    private Logger logger = new Logger();
+    private MainActivity mActivity;
+    private float mSafeLimit = 1.0F;
+    private boolean isFlightControllerReady = false;
+    private boolean isGimbalReady = false;
 
     public ActuatorManager(MainActivity activity) {
         this.mActivity = activity;
@@ -114,13 +114,7 @@ public class ActuatorManager {
                         if (djiError != null) {
                             final String message = "enableVirtualStickControlMode: " + djiError.getDescription();
                             logger.appendLog(message);
-
-                            mActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mActivity.showToast(message);
-                                }
-                            });
+                            mActivity.showToast(message);
                         }
                     }
                 });
@@ -137,13 +131,7 @@ public class ActuatorManager {
                         final StringBuilder message = new StringBuilder("sendVirtualStickFlightControlData: " + djiError.getDescription());
                         message.append(" pPitch=" + pPitch + ", pRoll=" + pRoll + ", pYaw=" + pYaw + ", pThrottle=" + pThrottle);
                         logger.appendLog(message.toString());
-
-                        mActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mActivity.showToast(message.toString());
-                            }
-                        });
+                        mActivity.showToast(message.toString());
                     }
                 }
             });
@@ -158,13 +146,7 @@ public class ActuatorManager {
                             if (djiError != null) {
                                 final String message = "setPitchRangeExtensionEnabled: " + djiError.getDescription();
                                 logger.appendLog(message);
-
-                                mActivity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mActivity.showToast(message);
-                                    }
-                                });
+                                mActivity.showToast(message);
                             }
                         }
                     });
@@ -184,14 +166,7 @@ public class ActuatorManager {
                         if (djiError != null) {
                             final String message = "rotateGimbalByAngle: " + djiError.getDescription();
                             logger.appendLog(message);
-
-                            mActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mActivity.showToast(message);
-                                }
-                            });
-
+                            mActivity.showToast(message);
                         }
                     }
                 });
@@ -199,10 +174,6 @@ public class ActuatorManager {
             }
         }
     }
-
-//    public void setSafeLimit(float safeLimit) {
-//        this.mSafeLimit = safeLimit;
-//    }
 
     private float bound(float value, float min, float max) {
         if (value > max) {

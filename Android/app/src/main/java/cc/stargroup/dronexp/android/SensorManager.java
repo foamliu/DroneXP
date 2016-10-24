@@ -83,21 +83,16 @@ public class SensorManager implements SensorEventListener {
         }
 
         if (battery != null && battery.isConnected()) {
-            final int numOFCell = battery.getNumberOfCell();
-            str.append(numOFCell + " cells, ");
-            battery.getCellVoltages(new DJIBaseComponent.DJICompletionCallbackWith<List<DJIBattery.DJIBatteryCell>>() {
+            battery.setBatteryStateUpdateCallback(new DJIBattery.DJIBatteryStateUpdateCallback() {
                 @Override
-                public void onSuccess(List<DJIBattery.DJIBatteryCell> djiBatteryCells) {
-                    for (int i=0;i<numOFCell;i++) {
-                        DJIBattery.DJIBatteryCell cell =  djiBatteryCells.get(i);
-                        str.append(cell.getVoltage() + " V, ");
-                    }
-                }
-
-                @Override
-                public void onFailure(DJIError djiError) {
-                    final StringBuilder message = new StringBuilder("getCellVoltages: " + djiError.getDescription());
-                    logger.appendLog(message.toString());
+                public void onResult(DJIBattery.DJIBatteryState djiBatteryState) {
+                    int remainingPercent = djiBatteryState.getBatteryEnergyRemainingPercent();
+                    int fullChargeEnergy = djiBatteryState.getFullChargeEnergy();
+                    int currentEnergy = djiBatteryState.getCurrentEnergy();
+                    int temperature = djiBatteryState.getBatteryTemperature();
+                    str.append(currentEnergy+"mAh/"+fullChargeEnergy+"mAh ");
+                    str.append("remaining: " + remainingPercent + "% ");
+                    str.append("temperature: " + temperature);
                 }
             });
         }
