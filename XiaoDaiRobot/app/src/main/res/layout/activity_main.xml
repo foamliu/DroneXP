@@ -9,24 +9,22 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="cc.stargroup.xiaodai.MainActivity">
+
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_alignParentTop="true"
-        android:id="@+id/linearLayout">
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btn_take_off"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="报天气"
-        android:layout_weight="1"
-        android:layout_gravity="center_vertical" />
+        <Button
+            android:id="@+id/btn_weather"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="报天气" />
+
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
 </RelativeLayout>
