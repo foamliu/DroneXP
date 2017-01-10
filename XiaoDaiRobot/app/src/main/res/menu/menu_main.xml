@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/weather"
+        android:title="@string/weather" />
+    <item android:id="@+id/recognize"
+        android:title="@string/recognize" />
+    <item android:id="@+id/deviceList"
+        android:title="@string/deviceList" />
+    <item android:id="@+id/toggleLed"
+        android:title="@string/toggleLed" />
+</menu>
