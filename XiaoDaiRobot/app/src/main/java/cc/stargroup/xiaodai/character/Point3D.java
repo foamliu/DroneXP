@@ -1,9 +1,16 @@
 package cc.stargroup.xiaodai.character;
 
 /**
- * Created by Foam on 2017/1/10.
+ @struct RMPoint3D
+ @brief A helper data type for reasoning about 3-Dimensional cartesian space
+ within the RMCharacter framework
+ @var RMPoint3D::x
+ The X-axis component of the point
+ @var RMPoint3D::y
+ The Y-axis component of the point
+ @var RMPoint3D::z
+ The Z-axis component of the point
  */
-
 public class Point3D {
     public float x;
     public float y;

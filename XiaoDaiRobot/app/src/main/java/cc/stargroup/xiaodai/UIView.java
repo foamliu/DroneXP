@@ -11,22 +11,26 @@ import cc.stargroup.xiaodai.character.Character;
  * Created by Foam on 2017/1/10.
  */
 
-public class DrawView extends View {
+public class UIView extends View {
     private Character character;
 
-    public DrawView(Context context, Character character) {
+    public UIView(Context context) {
         super(context);
 
-        this.character = character;
-
         setBackgroundColor(Color.parseColor("#00CCED"));
+    }
+
+    public void setCharacter(Character character) {
+        this.character = character;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        character.drawSelf(canvas);
+        if (character != null) {
+            character.drawSelf(canvas);
+        }
     }
 
 }

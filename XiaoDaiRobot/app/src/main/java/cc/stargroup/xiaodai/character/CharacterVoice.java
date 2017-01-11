@@ -6,4 +6,8 @@ package cc.stargroup.xiaodai.character;
 
 public class CharacterVoice {
     public static CharacterVoice sharedInstance;
+
+    public void mumbleWithUtterance(String utterance) {
+
+    }
 }

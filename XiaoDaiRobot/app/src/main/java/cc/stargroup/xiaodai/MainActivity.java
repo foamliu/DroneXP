@@ -34,8 +34,10 @@ public class MainActivity extends Activity {
         robotController = new RobotController();
         character = new cc.stargroup.xiaodai.character.Character(this);
 
-        View drawView = new DrawView(this, character);
-        setContentView(drawView);
+        UIView superview = new UIView(this);
+        //superview.setCharacter(character);
+        character.addToSuperview(superview);
+        setContentView(superview);
     }
 
     @Override

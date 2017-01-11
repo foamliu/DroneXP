@@ -21,16 +21,12 @@ public class CharacterFace {
     private CharacterEye leftEye;
     private CharacterEye rightEye;
 
-    public static CharacterFace createByCharacterType(Context context, CharacterType characterType) {
-        return new CharacterFace(context, characterType);
-    }
-
     public CharacterFace(Context context, CharacterType characterType) {
         this.characterType = characterType;
         this.leftEye = new CharacterEye(context, true);
         this.rightEye = new CharacterEye(context, false);
 
-
+        String imageNamed = String.format("Romo_Emotion_%d.png", CharacterEmotion.Happy.getValue());
     }
 
     public void setRotation(float rotation) {
@@ -39,6 +35,22 @@ public class CharacterFace {
             shouldAnimate = true;
         }
         this.rotation = rotation;
+    }
+
+    public void lookAtPoint(Point3D point, boolean animated) {
+
+    }
+
+    public void lookAtDefault() {
+
+    }
+
+    public void blink() {
+
+    }
+
+    public void doubleBlink() {
+
     }
 
     public void drawSelf(Canvas canvas) {
