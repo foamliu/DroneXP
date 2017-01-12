@@ -11,6 +11,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import cc.stargroup.xiaodai.widget.UIView;
+
 import static android.speech.SpeechRecognizer.RESULTS_RECOGNITION;
 
 public class MainActivity extends Activity {

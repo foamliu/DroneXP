@@ -1,4 +1,4 @@
-package cc.stargroup.xiaodai;
+package cc.stargroup.xiaodai.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;

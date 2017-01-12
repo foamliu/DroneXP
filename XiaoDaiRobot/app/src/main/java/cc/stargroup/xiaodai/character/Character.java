@@ -2,8 +2,10 @@ package cc.stargroup.xiaodai.character;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.util.DisplayMetrics;
 
-import cc.stargroup.xiaodai.UIView;
+import cc.stargroup.xiaodai.widget.UIView;
 
 /**
  @brief Character is the public interface for creating characters and
@@ -87,13 +89,12 @@ public class Character {
 
     public Character(Context context) {
         this.appContext = context;
-
         this.characterType = CharacterType.XiaoDaiRobot;
-        this.face = new CharacterFace(this.appContext, characterType);
+
+        this.face = new CharacterFace(context, CharacterType.XiaoDaiRobot);
 
         this.leftEyeOpen = this.rightEyeOpen = true;
 
-        this.face.emotion = CharacterEmotion.Happy;
         this.voice = CharacterVoice.sharedInstance;
     }
 

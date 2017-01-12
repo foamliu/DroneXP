@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.RectF;
+import android.util.DisplayMetrics;
 
 import java.io.InputStream;
 
@@ -29,6 +31,24 @@ public class Util {
         }
 
         return image;
+    }
+
+    public static RectF getFrame(Context context) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels;
+        return new RectF(0, 0, width, height);
+    }
+
+    public static float clamp(float min, float value, float max) {
+        if (value > max) {
+            value = max;
+        }
+        if (value < min) {
+            value = min;
+        }
+
+        return value;
     }
 
 }

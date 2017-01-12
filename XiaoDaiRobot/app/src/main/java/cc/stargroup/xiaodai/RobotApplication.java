@@ -16,14 +16,14 @@ public class RobotApplication extends Application {
         super.onCreate();
 
         // Setup handler for uncaught exceptions.
-        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
-        {
-            @Override
-            public void uncaughtException (Thread thread, Throwable e)
-            {
-                logger.appendLog(e.getMessage());
-                logger.appendLog(e.toString());
-            }
-        });
+//        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
+//        {
+//            @Override
+//            public void uncaughtException (Thread thread, Throwable e)
+//            {
+//                logger.appendLog(e.getMessage());
+//                logger.appendLog(e.toString());
+//            }
+//        });
     }
 }
