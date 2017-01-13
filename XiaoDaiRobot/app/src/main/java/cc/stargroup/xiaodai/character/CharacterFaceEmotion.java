@@ -83,7 +83,7 @@ public class CharacterFaceEmotion {
 
     private Bitmap getImage(CharacterEmotion emotion) {
         String imageNamed = String.format("animations/Static Emotions/%s/Romo_Emotion_Mouth_%d@2x.png", emotion.toString(), emotion.getValue());
-        return Util.getImageFromAssetsFile(appContext, imageNamed);
+        return Util.loadImageFromAssetsFile(appContext, imageNamed);
     }
 
     public void drawSelf(Canvas canvas) {

@@ -148,7 +148,7 @@ public class CharacterEye {
 
     private Bitmap getImage(CharacterEmotion emotion) {
         String imageNamed = String.format("animations/Static Emotions/%s/Romo_Emotion_%seye_%d@2x.png", emotion.toString(), left ? "L" : "R", emotion.getValue());
-        return Util.getImageFromAssetsFile(appContext, imageNamed);
+        return Util.loadImageFromAssetsFile(appContext, imageNamed);
     }
 
     public void lookAtPoint(Point3D point, boolean animated) {
@@ -188,4 +188,5 @@ public class CharacterEye {
     private Point transform(Point point) {
         return new Point(point.x * 2 + eye.frame().left, point.y * 2 + eye.frame().top);
     }
+
 }

@@ -3,6 +3,8 @@ package cc.stargroup.xiaodai.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import cc.stargroup.xiaodai.character.Character;
@@ -18,6 +20,8 @@ public class UIView extends View {
         super(context);
 
         setBackgroundColor(Color.parseColor("#00CCED"));
+
+        runnable.run(); //this is the initial call to draw player at index 0
     }
 
     public void setCharacter(Character character) {
@@ -32,5 +36,14 @@ public class UIView extends View {
             character.drawSelf(canvas);
         }
     }
+
+    Handler handler = new Handler(Looper.getMainLooper());
+    Runnable runnable = new Runnable(){
+        public void run(){
+            //arr[0].update(true, true);
+            invalidate(); //will trigger the onDraw
+            handler.postDelayed(this, 40); //in 40 milli sec
+        }
+    };
 
 }

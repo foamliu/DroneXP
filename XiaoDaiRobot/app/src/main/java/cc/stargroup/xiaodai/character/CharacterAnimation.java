@@ -1,16 +1,31 @@
 package cc.stargroup.xiaodai.character;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 
-import java.util.Date;
-import java.util.Timer;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cc.stargroup.xiaodai.utilities.Util;
+import cc.stargroup.xiaodai.widget.UIImageView;
 
 /**
  * Created by Foam on 2017/1/11.
  */
 
 public class CharacterAnimation {
-    
+    private Context appContext;
+    private UIImageView sprite;
+    private List<JsonFrame> crop;
+
+    //private List<String> sprites;
+    //private List<String> crops;
 
     private boolean animating;
     private int breakpointFrame;
@@ -18,19 +33,29 @@ public class CharacterAnimation {
     private int frameCount;
     private int accumulatedFrames;
 
-    private Timer timer;
-    private Date startTime;
-    private Date endTime;
+    private long startTime;
+    private long endTime;
 
     private boolean reversed = false;
     private String prefix;
     private int index;
 
-    public CharacterAnimation() {
+    private Bitmap staticImage;
+    private Bitmap image;
 
+    public CharacterAnimation(Context context) {
+        this.appContext = context;
+        this.sprite = new UIImageView();
+        //this.crop = new ArrayList<Frame>();
+        //this.sprites = new ArrayList<String>();
+        //this.crops = new ArrayList<String>();
     }
 
     public void startAnimating() {
+
+        startTime = System.currentTimeMillis();
+        endTime = startTime + (long) ((1.0 / 24.0) * frameCount * 1000);
+
         this.animating = true;
     }
 
@@ -43,9 +68,9 @@ public class CharacterAnimation {
     }
 
     /**
-     Some expressions don't include a blink-through transition for either the intro, outro, or both
-     And instead, they reuse the blink-through transition from an emotion
-     e.g. Curious expression should use Curious emotion's blink-through for both intro & outro
+     * Some expressions don't include a blink-through transition for either the intro, outro, or both
+     * And instead, they reuse the blink-through transition from an emotion
+     * e.g. Curious expression should use Curious emotion's blink-through for both intro & outro
      */
     public String prefixWithActionForExpression(AnimatedAction action, CharacterExpression expression) {
         if (action == AnimatedAction.Intro || action == AnimatedAction.Outro) {
@@ -150,10 +175,63 @@ public class CharacterAnimation {
 
             }
         }
+        return null;
+    }
+
+    private List<JsonFrame> loadEmotionMetaData(CharacterEmotion emotion) {
+        String fileName = String.format("animations/Emotions/%s/Romo_Emotion_Transition_%d_1.json", emotion.toString(), emotion.getValue());
+        String strJson = Util.loadJsonFromAssetsFile(appContext, fileName);
+        List<JsonFrame> frames = new ArrayList<>();
+        try {
+            JSONObject json = new JSONObject(strJson);
+            JSONArray jsonarray = json.getJSONArray("frames");
+            for (int i = 0; i < jsonarray.length(); i++) {
+                JSONObject jsonobject = jsonarray.getJSONObject(i);
+                JSONObject frame = jsonobject.getJSONObject("frame");
+                boolean rotated = jsonobject.getBoolean("rotated");
+                JSONObject spriteSourceSize = jsonobject.getJSONObject("spriteSourceSize");
+
+                int frameH = frame.getInt("h");
+                int frameW = frame.getInt("w");
+                int frameX = frame.getInt("x");
+                int frameY = frame.getInt("y");
+                int spriteSourceSizeH = spriteSourceSize.getInt("h");
+                int spriteSourceSizeW = spriteSourceSize.getInt("w");
+                int spriteSourceSizeX = spriteSourceSize.getInt("x");
+                int spriteSourceSizeY = spriteSourceSize.getInt("y");
+
+                frames.add(new JsonFrame(new JsonRect(frameH, frameW, frameX, frameY), rotated, new JsonRect(spriteSourceSizeH, spriteSourceSizeW, spriteSourceSizeX, spriteSourceSizeY)));
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return frames;
+    }
+
+    private void loadExpressionMetaData(CharacterExpression expression) {
+        String fileName = String.format("animations/Emotions/%s/Romo_Expression_Transition_%d_1@2x.png", expression.toString(), expression.getValue());
+        String strJson = Util.loadJsonFromAssetsFile(appContext, fileName);
+        try {
+            JSONObject json = new JSONObject(strJson);
+            JSONArray jsonarray = json.getJSONArray("frames");
+            for (int i = 0; i < jsonarray.length(); i++) {
+                JSONObject jsonobject = jsonarray.getJSONObject(i);
+                JSONObject frame = jsonobject.getJSONObject("frame");
+                boolean rotated = jsonobject.getBoolean("rotated");
+                boolean trimmed = jsonobject.getBoolean("trimmed");
+                JSONObject spriteSourceSize = jsonobject.getJSONObject("spriteSourceSize");
+                JSONObject sourceSize = jsonobject.getJSONObject("sourceSize");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void animateWithActionForEmotion(AnimatedAction action, CharacterEmotion emotion) {
-        reversed = false;
+        this.reversed = false;
+
         switch (action) {
             case Outro:
                 reversed = true;
@@ -176,6 +254,11 @@ public class CharacterAnimation {
             default:
                 return;
         }
+
+        this.crop = loadEmotionMetaData(emotion);
+        this.frameCount = this.crop.size();
+        String fileName = String.format("animations/Emotions/%s/Romo_Emotion_Transition_%d_1@2x.png", emotion.toString(), emotion.getValue());
+        this.sprite.setImage(Util.loadImageFromAssetsFile(appContext, fileName));
         this.startAnimating();
     }
 
@@ -197,10 +280,150 @@ public class CharacterAnimation {
             default:
                 return;
         }
+
+        this.loadExpressionMetaData(expression);
         this.startAnimating();
     }
 
-    public void completion() {
+    void setImage(Bitmap image) {
+        if (animating) {
+            this.staticImage = image;
+        } else {
+            this.image = image;
+        }
+    }
 
+    public void drawSelf(Canvas canvas) {
+        if (animating) {
+            long curTime = System.currentTimeMillis();
+            int currentFrame = (int) (24.0 * (curTime - startTime) / 1000) - accumulatedFrames;
+            if (curTime > endTime || currentFrame >= frameCount + accumulatedFrames) {
+                this.stopAnimating();
+            } else if (currentFrame >= crop.size()) {
+                index++;
+                accumulatedFrames += crop.size();
+                breakpointFrame -= crop.size();
+                sprite.setImage(spriteSheetWithPrefix(index, prefix));
+                if (sprite.image() != null) {
+                    this.nextFrame();
+                } else {
+                    this.stopAnimating();
+                }
+            } else {
+                if (currentFrame >= this.breakpointFrame && this.breakpointFrame >= 0) {
+                    //[self.delegate animationReachedBreakpointAtFrame:currentFrame];
+                    breakpointFrame = -1;
+                }
+
+                int frameIndex = reversed ? (crop.size() - currentFrame - 1) : currentFrame;
+
+                JsonFrame jsonFrame = crop.get(frameIndex);
+                JsonRect frame = jsonFrame.frame();
+                JsonRect sourceFrame = jsonFrame.spriteSourceSize();
+                float w = frame.w();
+                float h = frame.h();
+                float x = frame.x();
+                float y = frame.y();
+                float drawX = sourceFrame.x();
+                float drawY = sourceFrame.y();
+
+//                if (rotated) {
+//                    sprite.contentMode = UIViewContentModeTopRight;
+//                    sprite.transform = CGAffineTransformMakeRotation(-M_PI_2);
+//                    sprite.frame = CGRectMake(-y, -_sprite.image.size.width + x + h, y + w, _sprite.image.size.width - x);
+//                } else {
+//                    sprite.contentMode = UIViewContentModeTopLeft;
+//                    sprite.transform = CGAffineTransformIdentity;
+//                    sprite.frame = CGRectMake(-x, -y, x + w, y + h);
+//                }
+//                self.frame = (CGRect){CGPointMake(drawX, drawY + h), this.frame.size};
+
+                canvas.drawBitmap(sprite.image(), new Rect((int) x, (int) y, (int) (x + w), (int) (y + h)), new Rect((int) drawX, (int) drawY, (int) (drawX + w), (int) (drawY + h)), null);
+            }
+
+        } else {
+
+        }
+    }
+
+    class JsonRect {
+
+        private float h, w, x, y;
+
+        public float h() {
+            return h;
+        }
+
+        public float w() {
+            return w;
+        }
+
+        public float x() {
+            return x;
+        }
+
+        public float y() {
+            return y;
+        }
+
+        public void setH(float h) {
+            this.h = h;
+        }
+
+        public void setW(float w) {
+            this.w = w;
+        }
+
+        public void setX(float x) {
+            this.x = x;
+        }
+
+        public void setY(float y) {
+            this.y = y;
+        }
+
+        public JsonRect(float h, float w, float x, float y) {
+            this.h = h;
+            this.w = w;
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    class JsonFrame {
+
+        private JsonRect frame;
+        private boolean rotated;
+        private JsonRect spriteSourceSize;
+
+        public JsonRect frame() {
+            return frame;
+        }
+
+        public boolean rotated() {
+            return rotated;
+        }
+
+        public JsonRect spriteSourceSize() {
+            return spriteSourceSize;
+        }
+
+        public void setFrame(JsonRect frame) {
+            this.frame = frame;
+        }
+
+        public void setRotated(boolean rotated) {
+            this.rotated = rotated;
+        }
+
+        public void setSpriteSourceSize(JsonRect spriteSourceSize) {
+            this.spriteSourceSize = spriteSourceSize;
+        }
+
+        public JsonFrame(JsonRect frame, boolean rotated, JsonRect spriteSourceSize) {
+            this.frame = frame;
+            this.rotated = rotated;
+            this.spriteSourceSize = spriteSourceSize;
+        }
     }
 }

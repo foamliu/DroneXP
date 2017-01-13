@@ -7,6 +7,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.util.DisplayMetrics;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -15,9 +18,10 @@ import java.io.InputStream;
 
 public class Util {
 
-    public static Bitmap getImageFromAssetsFile(Context context, String fileName) {
+    public static Bitmap loadImageFromAssetsFile(Context context, String fileName) {
         Bitmap image = null;
         AssetManager am = context.getAssets();
+
         try {
             InputStream is = am.open(fileName);
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -26,11 +30,34 @@ public class Util {
             image = BitmapFactory.decodeStream(is, null, options);
             is.close();
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         return image;
+    }
+
+    public static String loadJsonFromAssetsFile(Context context, String fileName) {
+        String json = null;
+        AssetManager am = context.getAssets();
+
+        try {
+            InputStream is = am.open(fileName);
+            int size = is.available();
+
+            byte[] buffer = new byte[size];
+
+            is.read(buffer);
+
+            is.close();
+
+            json = new String(buffer, "UTF-8");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return json;
     }
 
     public static RectF getFrame(Context context) {

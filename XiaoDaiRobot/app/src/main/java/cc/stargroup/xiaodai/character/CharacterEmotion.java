@@ -1,11 +1,11 @@
 package cc.stargroup.xiaodai.character;
 
 /**
- Emotions are persistent emotional states
-
- When you set the RMCharacterEmotion of an RMCharacter, it will
- stay in that emotional state until it receives another request to change
- its RMCharacterEmotion.
+ * Emotions are persistent emotional states
+ * <p>
+ * When you set the RMCharacterEmotion of an RMCharacter, it will
+ * stay in that emotional state until it receives another request to change
+ * its RMCharacterEmotion.
  */
 public enum CharacterEmotion {
     Curious(1),
@@ -20,6 +20,7 @@ public enum CharacterEmotion {
     Delighted(10);
 
     private final int value;
+
     private CharacterEmotion(int value) {
         this.value = value;
     }

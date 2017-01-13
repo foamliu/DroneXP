@@ -1,10 +1,10 @@
 package cc.stargroup.xiaodai.character;
 
 /**
- Expressions are briefly animated actions
-
- Each RMCharacterExpression represents a type of animation that the
- robot will briefly express
+ * Expressions are briefly animated actions
+ * <p>
+ * Each RMCharacterExpression represents a type of animation that the
+ * robot will briefly express
  */
 public enum CharacterExpression {
     // is not expressing anything
@@ -75,6 +75,7 @@ public enum CharacterExpression {
     Struggling(32);
 
     private final int value;
+
     private CharacterExpression(int value) {
         this.value = value;
     }

@@ -92,6 +92,7 @@ public class Character {
         this.characterType = CharacterType.XiaoDaiRobot;
 
         this.face = new CharacterFace(context, CharacterType.XiaoDaiRobot);
+        this.face.setEmotion(CharacterEmotion.Curious);
 
         this.leftEyeOpen = this.rightEyeOpen = true;
 
@@ -116,11 +117,11 @@ public class Character {
     }
 
     public void setEmotion(CharacterEmotion emotion) {
-        this.face.emotion = emotion;
+        this.face.setEmotion(emotion);
     }
 
-    public void setExpression(CharacterExpression expression) {
-        this.face.expression = expression;
+    public void setExpressionWithEmotion(CharacterExpression expression, CharacterEmotion emotion) {
+        this.face.setExpressionWithEmotion(expression, emotion);
     }
 
     /**

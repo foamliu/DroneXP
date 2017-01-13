@@ -9,13 +9,15 @@ import android.graphics.Canvas;
 
 public class CharacterFace {
 
-    CharacterAnimation animation;
-    CharacterFaceEmotion faceEmotion;
+    private CharacterAnimation animation;
+    private CharacterFaceEmotion faceEmotion;
 
     private Context appContext;
     private CharacterType characterType;
-    public CharacterEmotion emotion;
-    public CharacterExpression expression;
+    private CharacterEmotion emotion;
+    private CharacterExpression expression;
+    private CharacterExpression queuedExpression;
+    private CharacterEmotion queuedEmotion;
     private float pupilDilation;
     private float rotation;
     private boolean emoting;
@@ -25,9 +27,36 @@ public class CharacterFace {
         this.appContext = context;
         this.characterType = characterType;
 
-        this.animation = new CharacterAnimation();
+        this.animation = new CharacterAnimation(context);
         this.faceEmotion = new CharacterFaceEmotion(context);
         this.faceEmotion.setEmotion(CharacterEmotion.Curious);
+    }
+
+    public void setEmotion(CharacterEmotion emotion) {
+        if (!this.emoting && !this.expressing && (emotion != this.emotion)) {
+            // If we aren't mid-animation and the character is visible
+            this.emoting = true;
+
+            this.animation.animateWithActionForEmotion(AnimatedAction.Outro, emotion);
+
+        } else if (this.emoting || this.expressing) {
+            // If we're currently animating, queue this as the final desired emotion
+            queuedEmotion = emotion;
+        }
+    }
+
+    public void setExpressionWithEmotion(CharacterExpression expression, CharacterEmotion emotion) {
+        if (expression == CharacterExpression.None) {
+            // If we aren't given an expression, simply change emotions
+            this.emotion = emotion;
+        } else if (!this.emoting && !this.expressing) {
+            this.animation.animateWithActionForExpression(AnimatedAction.Expression, expression);
+        } else if (this.emoting && this.expressing) {
+            queuedEmotion = emotion;
+        } else if (this.emoting) {
+            queuedExpression = expression;
+            queuedEmotion = emotion;
+        }
     }
 
     public void setRotation(float rotation) {
@@ -55,7 +84,11 @@ public class CharacterFace {
     }
 
     public void drawSelf(Canvas canvas) {
-        faceEmotion.drawSelf(canvas);
+        if (emoting || expressing) {
+            animation.drawSelf(canvas);
+        } else {
+            faceEmotion.drawSelf(canvas);
+        }
     }
 
 
