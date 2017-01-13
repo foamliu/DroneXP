@@ -3,14 +3,19 @@ package cc.stargroup.xiaodai;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import cc.stargroup.xiaodai.character.CharacterEmotion;
+import cc.stargroup.xiaodai.character.CharacterExpression;
 import cc.stargroup.xiaodai.widget.UIView;
 
 import static android.speech.SpeechRecognizer.RESULTS_RECOGNITION;
@@ -142,6 +147,34 @@ public class MainActivity extends Activity {
             ArrayList<String> results = data.getStringArrayListExtra(RESULTS_RECOGNITION);
             // data.get... TODO 识别结果包含的信息见本文档的“结果解析”一节
             showToast("识别成功：" + Arrays.toString(results.toArray(new String[results.size()])));
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+
+        int action = MotionEventCompat.getActionMasked(event);
+
+        switch(action) {
+            case (MotionEvent.ACTION_DOWN) :
+                Log.d(TAG,"Action was DOWN");
+                this.character.setExpressionWithEmotion(CharacterExpression.Angry, CharacterEmotion.Curious);
+                return true;
+            case (MotionEvent.ACTION_MOVE) :
+                Log.d(TAG,"Action was MOVE");
+                return true;
+            case (MotionEvent.ACTION_UP) :
+                Log.d(TAG,"Action was UP");
+                return true;
+            case (MotionEvent.ACTION_CANCEL) :
+                Log.d(TAG,"Action was CANCEL");
+                return true;
+            case (MotionEvent.ACTION_OUTSIDE) :
+                Log.d(TAG,"Movement occurred outside bounds " +
+                        "of current screen element");
+                return true;
+            default :
+                return super.onTouchEvent(event);
         }
     }
 

@@ -92,7 +92,8 @@ public class Character {
         this.characterType = CharacterType.XiaoDaiRobot;
 
         this.face = new CharacterFace(context, CharacterType.XiaoDaiRobot);
-        this.face.setEmotion(CharacterEmotion.Curious);
+        //this.face.setEmotion(CharacterEmotion.Curious);
+        this.face.setExpressionWithEmotion(CharacterExpression.Angry, CharacterEmotion.Curious);
 
         this.leftEyeOpen = this.rightEyeOpen = true;
 

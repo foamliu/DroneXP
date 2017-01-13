@@ -33,29 +33,54 @@ public class CharacterFace {
     }
 
     public void setEmotion(CharacterEmotion emotion) {
+
         if (!this.emoting && !this.expressing && (emotion != this.emotion)) {
             // If we aren't mid-animation and the character is visible
             this.emoting = true;
 
-            this.animation.animateWithActionForEmotion(AnimatedAction.Outro, emotion);
+            this.animation.animateWithActionForEmotion(
+                    AnimatedAction.Outro,
+                    emotion,
+                    new CompletionCallback() {
+                        @Override
+                        public void OnCompletion(boolean finished) {
+                            animationDidFinish();
+                        }
+                    });
 
         } else if (this.emoting || this.expressing) {
             // If we're currently animating, queue this as the final desired emotion
             queuedEmotion = emotion;
+
         }
     }
 
     public void setExpressionWithEmotion(CharacterExpression expression, CharacterEmotion emotion) {
+
         if (expression == CharacterExpression.None) {
             // If we aren't given an expression, simply change emotions
             this.emotion = emotion;
+
         } else if (!this.emoting && !this.expressing) {
-            this.animation.animateWithActionForExpression(AnimatedAction.Expression, expression);
+            this.expressing = true;
+
+            this.animation.animateWithActionForExpression(
+                    AnimatedAction.Expression,
+                    expression,
+                    new CompletionCallback() {
+                        @Override
+                        public void OnCompletion(boolean finished) {
+                            animationDidFinish();
+                        }
+                    });
+
         } else if (this.emoting && this.expressing) {
             queuedEmotion = emotion;
+
         } else if (this.emoting) {
             queuedExpression = expression;
             queuedEmotion = emotion;
+
         }
     }
 
@@ -88,6 +113,31 @@ public class CharacterFace {
             animation.drawSelf(canvas);
         } else {
             faceEmotion.drawSelf(canvas);
+        }
+    }
+
+    private void animationDidStart()
+    {
+    }
+
+    private void animationDidFinish()
+    {
+        this.emoting = false;
+        this.expressing = false;
+        this.expression = CharacterExpression.None;
+
+        if (queuedEmotion != null && queuedExpression != null) {
+            this.setExpressionWithEmotion(queuedExpression, queuedEmotion);
+            queuedExpression = null;
+            queuedEmotion = null;
+        } else if (queuedExpression != null) {
+            this.expression = queuedExpression;
+            queuedExpression = null;
+        } else if (queuedEmotion != null) {
+            this.emotion = queuedEmotion;
+            queuedEmotion = null;
+        } else {
+            //[self.delegate expressionFaceAnimationDidFinish];
         }
     }
 

@@ -24,9 +24,6 @@ public class CharacterAnimation {
     private UIImageView sprite;
     private List<JsonFrame> crop;
 
-    //private List<String> sprites;
-    //private List<String> crops;
-
     private boolean animating;
     private int breakpointFrame;
 
@@ -43,16 +40,15 @@ public class CharacterAnimation {
     private Bitmap staticImage;
     private Bitmap image;
 
+    private CompletionCallback completion;
+
     public CharacterAnimation(Context context) {
         this.appContext = context;
         this.sprite = new UIImageView();
-        //this.crop = new ArrayList<Frame>();
-        //this.sprites = new ArrayList<String>();
-        //this.crops = new ArrayList<String>();
+
     }
 
     public void startAnimating() {
-
         startTime = System.currentTimeMillis();
         endTime = startTime + (long) ((1.0 / 24.0) * frameCount * 1000);
 
@@ -61,6 +57,13 @@ public class CharacterAnimation {
 
     public void stopAnimating() {
         this.animating = false;
+        this.sprite.setImage(null);
+        this.crop = null;
+        this.reversed = false;
+
+        if (this.completion != null) {
+            this.completion.OnCompletion(true);
+        }
     }
 
     public void nextFrame() {
@@ -182,6 +185,7 @@ public class CharacterAnimation {
         String fileName = String.format("animations/Emotions/%s/Romo_Emotion_Transition_%d_1.json", emotion.toString(), emotion.getValue());
         String strJson = Util.loadJsonFromAssetsFile(appContext, fileName);
         List<JsonFrame> frames = new ArrayList<>();
+
         try {
             JSONObject json = new JSONObject(strJson);
             JSONArray jsonarray = json.getJSONArray("frames");
@@ -206,12 +210,15 @@ public class CharacterAnimation {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         return frames;
     }
 
-    private void loadExpressionMetaData(CharacterExpression expression) {
-        String fileName = String.format("animations/Emotions/%s/Romo_Expression_Transition_%d_1@2x.png", expression.toString(), expression.getValue());
+    private List<JsonFrame> loadExpressionMetaData(CharacterExpression expression) {
+        String fileName = String.format("animations/Expressions/%s/Romo_Expression_%d_1.json", expression.toString(), expression.getValue());
         String strJson = Util.loadJsonFromAssetsFile(appContext, fileName);
+        List<JsonFrame> frames = new ArrayList<>();
+
         try {
             JSONObject json = new JSONObject(strJson);
             JSONArray jsonarray = json.getJSONArray("frames");
@@ -219,17 +226,31 @@ public class CharacterAnimation {
                 JSONObject jsonobject = jsonarray.getJSONObject(i);
                 JSONObject frame = jsonobject.getJSONObject("frame");
                 boolean rotated = jsonobject.getBoolean("rotated");
-                boolean trimmed = jsonobject.getBoolean("trimmed");
+                //boolean trimmed = jsonobject.getBoolean("trimmed");
                 JSONObject spriteSourceSize = jsonobject.getJSONObject("spriteSourceSize");
-                JSONObject sourceSize = jsonobject.getJSONObject("sourceSize");
+                //JSONObject sourceSize = jsonobject.getJSONObject("sourceSize");
+
+                int frameH = frame.getInt("h");
+                int frameW = frame.getInt("w");
+                int frameX = frame.getInt("x");
+                int frameY = frame.getInt("y");
+                int spriteSourceSizeH = spriteSourceSize.getInt("h");
+                int spriteSourceSizeW = spriteSourceSize.getInt("w");
+                int spriteSourceSizeX = spriteSourceSize.getInt("x");
+                int spriteSourceSizeY = spriteSourceSize.getInt("y");
+
+                frames.add(new JsonFrame(new JsonRect(frameH, frameW, frameX, frameY), rotated, new JsonRect(spriteSourceSizeH, spriteSourceSizeW, spriteSourceSizeX, spriteSourceSizeY)));
+
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+        return frames;
     }
 
-    public void animateWithActionForEmotion(AnimatedAction action, CharacterEmotion emotion) {
+    public void animateWithActionForEmotion(AnimatedAction action, CharacterEmotion emotion, CompletionCallback completion) {
+        this.completion = completion;
         this.reversed = false;
 
         switch (action) {
@@ -239,6 +260,9 @@ public class CharacterAnimation {
                 if (emotion != CharacterEmotion.Sleeping) {
                     prefix = String.format("Romo_Emotion_Transition_%d", emotion.getValue());
                 } else {
+                    if (this.completion != null) {
+                        this.completion.OnCompletion(true);
+                    }
                     return;
                 }
                 break;
@@ -262,13 +286,17 @@ public class CharacterAnimation {
         this.startAnimating();
     }
 
-    public void animateWithActionForExpression(AnimatedAction action, CharacterExpression expression) {
+    public void animateWithActionForExpression(AnimatedAction action, CharacterExpression expression, CompletionCallback completion) {
+
+        this.completion = completion;
+
         switch (action) {
             case Outro:
                 reversed = true;
             case Intro:
                 this.prefix = this.prefixWithActionForExpression(action, expression);
                 if (prefix.length() == 0) {
+                    this.completion.OnCompletion(true);
                     return;
                 }
                 break;
@@ -281,7 +309,10 @@ public class CharacterAnimation {
                 return;
         }
 
-        this.loadExpressionMetaData(expression);
+        this.crop = loadExpressionMetaData(expression);
+        this.frameCount = this.crop.size();
+        String fileName = String.format("animations/Expressions/%s/Romo_Expression_%d_1@2x.png", expression.toString(), expression.getValue());
+        this.sprite.setImage(Util.loadImageFromAssetsFile(appContext, fileName));
         this.startAnimating();
     }
 
@@ -326,17 +357,6 @@ public class CharacterAnimation {
                 float y = frame.y();
                 float drawX = sourceFrame.x();
                 float drawY = sourceFrame.y();
-
-//                if (rotated) {
-//                    sprite.contentMode = UIViewContentModeTopRight;
-//                    sprite.transform = CGAffineTransformMakeRotation(-M_PI_2);
-//                    sprite.frame = CGRectMake(-y, -_sprite.image.size.width + x + h, y + w, _sprite.image.size.width - x);
-//                } else {
-//                    sprite.contentMode = UIViewContentModeTopLeft;
-//                    sprite.transform = CGAffineTransformIdentity;
-//                    sprite.frame = CGRectMake(-x, -y, x + w, y + h);
-//                }
-//                self.frame = (CGRect){CGPointMake(drawX, drawY + h), this.frame.size};
 
                 canvas.drawBitmap(sprite.image(), new Rect((int) x, (int) y, (int) (x + w), (int) (y + h)), new Rect((int) drawX, (int) drawY, (int) (drawX + w), (int) (drawY + h)), null);
             }
