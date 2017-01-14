@@ -7,8 +7,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.util.DisplayMetrics;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -76,6 +74,12 @@ public class Util {
         }
 
         return value;
+    }
+
+    public static int nextRandomInteger(int min, int max) {
+        double rand = Math.random();
+        double number = rand * ((max - min) + 1);
+        return min + (int)(number);
     }
 
 }

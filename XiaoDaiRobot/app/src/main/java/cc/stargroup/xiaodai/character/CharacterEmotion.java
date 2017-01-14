@@ -1,5 +1,8 @@
 package cc.stargroup.xiaodai.character;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Emotions are persistent emotional states
  * <p>
@@ -27,5 +30,30 @@ public enum CharacterEmotion {
 
     public int getValue() {
         return value;
+    }
+
+    private static final Map<Integer, CharacterEmotion> intToTypeMap = new HashMap<Integer, CharacterEmotion>();
+    static {
+        for (CharacterEmotion type : CharacterEmotion.values()) {
+            intToTypeMap.put(type.value, type);
+        }
+    }
+
+    public static CharacterEmotion fromInt(int i) {
+        CharacterEmotion type = intToTypeMap.get(Integer.valueOf(i));
+        if (type == null)
+            return CharacterEmotion.Happy;
+        return type;
+    }
+
+    public final static int NUM_EMOTIONS = 10;
+
+    /**
+     The total number of available RMCharacterEmotions
+     */
+    private int numberOfEmotions = NUM_EMOTIONS;
+
+    public int numberOfEmotions() {
+        return numberOfEmotions;
     }
 }

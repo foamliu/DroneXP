@@ -16,6 +16,7 @@ import java.util.Arrays;
 
 import cc.stargroup.xiaodai.character.CharacterEmotion;
 import cc.stargroup.xiaodai.character.CharacterExpression;
+import cc.stargroup.xiaodai.utilities.Util;
 import cc.stargroup.xiaodai.widget.UIView;
 
 import static android.speech.SpeechRecognizer.RESULTS_RECOGNITION;
@@ -158,7 +159,9 @@ public class MainActivity extends Activity {
         switch(action) {
             case (MotionEvent.ACTION_DOWN) :
                 Log.d(TAG,"Action was DOWN");
-                this.character.setExpressionWithEmotion(CharacterExpression.Angry, CharacterEmotion.Curious);
+                CharacterExpression expression = CharacterExpression.fromInt(Util.nextRandomInteger(1, CharacterExpression.NUM_EXPRESSIONS - 1));
+                CharacterEmotion emotion = CharacterEmotion.fromInt(Util.nextRandomInteger(1, CharacterEmotion.NUM_EMOTIONS - 1));
+                this.character.setExpressionWithEmotion(expression, emotion);
                 return true;
             case (MotionEvent.ACTION_MOVE) :
                 Log.d(TAG,"Action was MOVE");

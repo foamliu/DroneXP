@@ -1,5 +1,8 @@
 package cc.stargroup.xiaodai.character;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Expressions are briefly animated actions
  * <p>
@@ -82,5 +85,31 @@ public enum CharacterExpression {
 
     public int getValue() {
         return value;
+    }
+
+    private static final Map<Integer, CharacterExpression> intToTypeMap = new HashMap<Integer, CharacterExpression>();
+    static {
+        for (CharacterExpression type : CharacterExpression.values()) {
+            intToTypeMap.put(type.value, type);
+        }
+    }
+
+    public static CharacterExpression fromInt(int i) {
+        CharacterExpression type = intToTypeMap.get(Integer.valueOf(i));
+        if (type == null)
+            return CharacterExpression.Happy;
+        return type;
+    }
+
+
+    public final static int NUM_EXPRESSIONS = 32;
+
+    /**
+     The total number of available RMCharacterExpressions
+     */
+    private int numberOfExpressions = NUM_EXPRESSIONS;
+
+    public int numberOfExpressions() {
+        return numberOfExpressions;
     }
 }

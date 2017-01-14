@@ -40,7 +40,6 @@ public class UIView extends View {
     Handler handler = new Handler(Looper.getMainLooper());
     Runnable runnable = new Runnable(){
         public void run(){
-            //arr[0].update(true, true);
             invalidate(); //will trigger the onDraw
             handler.postDelayed(this, 40); //in 40 milli sec
         }

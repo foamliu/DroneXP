@@ -22,8 +22,6 @@ import cc.stargroup.xiaodai.widget.UIView;
  */
 public class Character {
 
-    public final static int NUM_EMOTIONS = 10;
-    public final static int NUM_EXPRESSIONS = 32;
     public final static int NUM_MUMBLES = 8;
     public final static int ROTATION_LIMIT = 15;
 
@@ -31,16 +29,6 @@ public class Character {
      The type of character contained within this instance
      */
     private CharacterType characterType;
-
-    /**
-     The total number of available RMCharacterEmotions
-     */
-    private int numberOfEmotions = NUM_EMOTIONS;
-
-    /**
-     The total number of available RMCharacterExpressions
-     */
-    private int numberOfExpressions = NUM_EXPRESSIONS;
 
     /**
      A float in the range [0.5, 1.25] for adjusting the dilation of the character's pupils.
@@ -97,7 +85,7 @@ public class Character {
 
         this.leftEyeOpen = this.rightEyeOpen = true;
 
-        this.voice = CharacterVoice.sharedInstance;
+        this.voice = CharacterVoice.sharedInstance(context);
     }
 
     /**
@@ -123,6 +111,7 @@ public class Character {
 
     public void setExpressionWithEmotion(CharacterExpression expression, CharacterEmotion emotion) {
         this.face.setExpressionWithEmotion(expression, emotion);
+        this.voice.setExpression(expression);
     }
 
     /**
