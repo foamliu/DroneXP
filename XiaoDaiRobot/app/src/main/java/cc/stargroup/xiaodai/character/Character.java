@@ -2,10 +2,8 @@ package cc.stargroup.xiaodai.character;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.util.DisplayMetrics;
 
-import cc.stargroup.xiaodai.widget.UIView;
+import cc.stargroup.xiaodai.widget.UIMainView;
 
 /**
  @brief Character is the public interface for creating characters and
@@ -80,7 +78,7 @@ public class Character {
         this.characterType = CharacterType.XiaoDaiRobot;
 
         this.face = new CharacterFace(context, CharacterType.XiaoDaiRobot);
-        //this.face.setEmotion(CharacterEmotion.Curious);
+        this.face.setEmotion(CharacterEmotion.Curious);
         this.face.setExpressionWithEmotion(CharacterExpression.Angry, CharacterEmotion.Curious);
 
         this.leftEyeOpen = this.rightEyeOpen = true;
@@ -94,14 +92,14 @@ public class Character {
 
      @param superview The parent view in which to contain the character's view.
      */
-    public void addToSuperview(UIView superview) {
+    public void addToSuperview(UIMainView superview) {
         superview.setCharacter(this);
     }
 
     /**
      Removes the character's view from its superview.
      */
-    public void removeFromSuperview(UIView superview) {
+    public void removeFromSuperview(UIMainView superview) {
         superview.setCharacter(null);
     }
 

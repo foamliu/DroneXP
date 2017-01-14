@@ -9,26 +9,33 @@ import android.graphics.RectF;
 
 public class UIImageView {
 
-    private RectF frame;
-    private Bitmap image;
+    private float left;
+    private float top;
+    private float width;
+    private float height;
 
-    public RectF frame() {
-        return frame;
-    }
+    private Bitmap image;
 
     public Bitmap image() {
         return image;
     }
 
-    public void setFrame(RectF frame) {
-        this.frame = frame;
+    public void setPosition(float l, float t) {
+        this.left = l;
+        this.top = t;
     }
 
     public void setImage(Bitmap image) {
         this.image = image;
     }
 
+    public float left() {
+        return left;
+    }
 
+    public float top() {
+        return top;
+    }
 
 
 }

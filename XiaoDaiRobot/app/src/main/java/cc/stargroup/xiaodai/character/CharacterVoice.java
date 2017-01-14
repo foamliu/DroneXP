@@ -21,7 +21,7 @@ public class CharacterVoice {
     private CharacterExpression expression;
 
     private Context appContext;
-    private MediaPlayer mediaPlayer;
+    //private MediaPlayer mediaPlayer;
     private boolean initialized;
 
     private boolean fading = false;
@@ -29,7 +29,6 @@ public class CharacterVoice {
 
     public CharacterVoice(Context context) {
         this.appContext = context;
-        this.mediaPlayer = new MediaPlayer();
         this.characterType = CharacterType.XiaoDaiRobot;
         this.initialized = true;
     }
@@ -59,6 +58,7 @@ public class CharacterVoice {
             }
 
             AssetFileDescriptor afd = this.appContext.getAssets().openFd(path);
+            MediaPlayer mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
             mediaPlayer.prepare();
             mediaPlayer.start();
@@ -70,11 +70,33 @@ public class CharacterVoice {
     }
 
     public void mumbleWithUtterance(String utterance) {
-
+        int randomSound = Util.nextRandomInteger(0, kNumMumbles - 1);
+        String path = String.format("audio/mumbles/mumble%d.mp3", randomSound);
+        AssetFileDescriptor afd = null;
+        try {
+            afd = this.appContext.getAssets().openFd(path);
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void makeBlinkSound() {
-
+        int randomSound = Util.nextRandomInteger(0, kNumBlinks - 1);
+        String path = String.format("audio/blinks/Creature-Blink-%d.mp3", randomSound);
+        AssetFileDescriptor afd = null;
+        try {
+            afd = this.appContext.getAssets().openFd(path);
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setFading(boolean fading) {

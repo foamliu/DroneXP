@@ -40,54 +40,66 @@ public class CharacterFaceEmotion {
     }
 
     public void setEmotion(CharacterEmotion emotion) {
-        this.emotion = emotion;
-        this.leftEye.setEmotion(emotion);
-        this.rightEye.setEmotion(emotion);
 
-        mouthView.setImage(getImage(emotion));
+        this.leftEye.setEmotion(emotion);
+        this.leftEye.setClose(0.0f);
+        this.leftEye.lookAtDefault();
+        this.rightEye.setEmotion(emotion);
+        this.rightEye.setClose(0.0f);
+        this.rightEye.lookAtDefault();
+
+        mouthView.setImage(loadMouthImage(emotion));
+
+        this.emotion = emotion;
 
         switch (this.emotion) {
             case Bewildered:
-                mouthView.setFrame(new RectF(206.5f * rate_w, 218.5f * rate_h + h, 0, 0));
+                mouthView.setPosition(206.5f * rate_w, 218.5f * rate_h + h);
                 break;
             case Curious:
-                mouthView.setFrame(new RectF(156.5f * rate_w, 285.0f * rate_h + h, 0, 0));
+                mouthView.setPosition(156.5f * rate_w, 285.0f * rate_h + h);
                 break;
             case Excited:
-                mouthView.setFrame(new RectF(40.0f * rate_w, 266.0f * rate_h + h, 0, 0));
+                mouthView.setPosition(40.0f * rate_w, 266.0f * rate_h + h);
                 break;
             case Happy:
             case Delighted:
-                mouthView.setFrame(new RectF(43.5f * rate_w, 252.5f * rate_h + h, 0, 0));
+                mouthView.setPosition(43.5f * rate_w, 252.5f * rate_h + h);
                 break;
             case Indifferent:
-                mouthView.setFrame(new RectF(38.5f * rate_w, 261.0f * rate_h + h, 0, 0));
+                mouthView.setPosition(38.5f * rate_w, 261.0f * rate_h + h);
                 break;
             case Sad:
-                mouthView.setFrame(new RectF(114f * rate_w, 269.0f * rate_h + h, 0, 0));
+                mouthView.setPosition(114f * rate_w, 269.0f * rate_h + h);
                 break;
             case Scared:
-                mouthView.setFrame(new RectF(104.5f * rate_w, 264.0f * rate_h + h, 0, 0));
+                mouthView.setPosition(104.5f * rate_w, 264.0f * rate_h + h);
                 break;
             case Sleepy:
-                mouthView.setFrame(new RectF(43.5f * rate_w, 231.0f * rate_h + h, 0, 0));
+                mouthView.setPosition(43.5f * rate_w, 231.0f * rate_h + h);
                 break;
             case Sleeping:
-                mouthView.setFrame(new RectF(96.0f * rate_w, 268.0f * rate_h + h, 0, 0));
+                mouthView.setPosition(96.0f * rate_w, 268.0f * rate_h + h);
                 break;
             default:
-                mouthView.setFrame(new RectF(43.5f * rate_w, 252.5f * rate_h + h, 0, 0));
+                mouthView.setPosition(43.5f * rate_w, 252.5f * rate_h + h);
                 break;
         }
     }
 
-    private Bitmap getImage(CharacterEmotion emotion) {
+    private Bitmap loadMouthImage(CharacterEmotion emotion) {
         String imageNamed = String.format("animations/Static Emotions/%s/Romo_Emotion_Mouth_%d@2x.png", emotion.toString(), emotion.getValue());
         return Util.loadImageFromAssetsFile(appContext, imageNamed);
     }
 
+    public void blink() {
+        if ((this.leftEye.close() < 0.89 || this.leftEye.close() < 0.89) && this.emotion != CharacterEmotion.Sleeping) {
+            CharacterVoice.sharedInstance(appContext).makeBlinkSound();
+        }
+    }
+
     public void drawSelf(Canvas canvas) {
-        canvas.drawBitmap(mouthView.image(), mouthView.frame().left, mouthView.frame().top, null);
+        canvas.drawBitmap(mouthView.image(), mouthView.left(), mouthView.top(), null);
 
         this.leftEye.drawSelf(canvas);
         this.rightEye.drawSelf(canvas);

@@ -17,7 +17,7 @@ import java.util.Arrays;
 import cc.stargroup.xiaodai.character.CharacterEmotion;
 import cc.stargroup.xiaodai.character.CharacterExpression;
 import cc.stargroup.xiaodai.utilities.Util;
-import cc.stargroup.xiaodai.widget.UIView;
+import cc.stargroup.xiaodai.widget.UIMainView;
 
 import static android.speech.SpeechRecognizer.RESULTS_RECOGNITION;
 
@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
         robotController = new RobotController();
         character = new cc.stargroup.xiaodai.character.Character(this);
 
-        UIView superview = new UIView(this);
+        UIMainView superview = new UIMainView(this);
         //superview.setCharacter(character);
         character.addToSuperview(superview);
         setContentView(superview);

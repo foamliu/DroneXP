@@ -13,10 +13,10 @@ import cc.stargroup.xiaodai.character.Character;
  * Created by Foam on 2017/1/10.
  */
 
-public class UIView extends View {
+public class UIMainView extends View {
     private Character character;
 
-    public UIView(Context context) {
+    public UIMainView(Context context) {
         super(context);
 
         setBackgroundColor(Color.parseColor("#00CCED"));
