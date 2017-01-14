@@ -29,7 +29,7 @@ public class CharacterFace {
 
         this.animation = new CharacterAnimation(context);
         this.faceEmotion = new CharacterFaceEmotion(context);
-        this.faceEmotion.setEmotion(CharacterEmotion.Curious);
+        this.faceEmotion.setEmotion(CharacterEmotion.Scared);
     }
 
     public void setEmotion(CharacterEmotion emotion) {
@@ -55,7 +55,7 @@ public class CharacterFace {
         }
     }
 
-    public void setExpressionWithEmotion(CharacterExpression expression, CharacterEmotion emotion) {
+    public void setExpressionWithEmotion(final CharacterExpression expression, CharacterEmotion emotion) {
 
         if (expression == CharacterExpression.None) {
             // If we aren't given an expression, simply change emotions
@@ -63,6 +63,8 @@ public class CharacterFace {
 
         } else if (!this.emoting && !this.expressing) {
             this.expressing = true;
+            CharacterEmotion startEmotion = this.emotion;
+            final CharacterEmotion finalEmotion = emotion;
 
             this.animation.animateWithActionForExpression(
                     AnimatedAction.Expression,
@@ -70,7 +72,21 @@ public class CharacterFace {
                     new CompletionCallback() {
                         @Override
                         public void OnCompletion(boolean finished) {
-                            animationDidFinish();
+                            // Check if we need to animate out then back in to the emotion, or not
+                            boolean needsOutroToEmotion = expressionEndsWithEmotion(expression, finalEmotion);
+                            if (needsOutroToEmotion) {
+                                animation.animateWithActionForExpression(
+                                        AnimatedAction.Outro,
+                                        expression,
+                                        new CompletionCallback() {
+                                            @Override
+                                            public void OnCompletion(boolean finished) {
+                                                immediateTransitionToEmotion(finalEmotion);
+                                            }
+                                        });
+                             } else {
+                                immediateTransitionToEmotion(finalEmotion);
+                            }
                         }
                     });
 
@@ -114,6 +130,118 @@ public class CharacterFace {
         } else {
             faceEmotion.drawSelf(canvas);
         }
+    }
+
+    // Some expressions began in an emotion and don't need an animated transition
+    private boolean expressionStartsWithEmotion(CharacterExpression expression, CharacterEmotion emotion)
+    {
+        switch (expression) {
+            case Curious:
+            case LookingAround:
+            case Ponder:
+                return (emotion == CharacterEmotion.Curious);
+
+            case Sad:
+                return (emotion == CharacterEmotion.Sad);
+
+            case Scared:
+                return (emotion == CharacterEmotion.Scared);
+
+            case Sleepy:
+                return (emotion == CharacterEmotion.Sleepy);
+
+            case Fart:
+            case Wee:
+            case Struggling:
+                return (emotion == CharacterEmotion.Happy);
+
+            case Bewildered:
+                return (emotion == CharacterEmotion.Bewildered);
+
+            default:
+                break;
+        }
+
+        if (expression.getValue() >= 100) {
+            return (emotion == CharacterEmotion.Happy);
+        }
+
+        return false;
+    }
+
+    // Some expressions end in an emotion and don't need an animated transition
+    private boolean expressionEndsWithEmotion(CharacterExpression expression, CharacterEmotion emotion)
+    {
+        switch (expression) {
+            case Curious:
+            case LookingAround:
+            case Ponder:
+                return (emotion == CharacterEmotion.Curious);
+
+            case Excited:
+            case Laugh:
+            case Chuckle:
+            case Proud:
+                return (emotion == CharacterEmotion.Excited);
+
+            case Happy:
+                return (emotion == CharacterEmotion.Happy);
+
+            case Sad:
+                return (emotion == CharacterEmotion.Sad);
+
+            case Scared:
+                return (emotion == CharacterEmotion.Scared);
+
+            case Sleepy:
+            case Yawn:
+                return (emotion == CharacterEmotion.Sleepy);
+
+            case Hiccup:
+                return (emotion == CharacterEmotion.Indifferent);
+
+            case Bewildered:
+                return (emotion == CharacterEmotion.Bewildered);
+
+            case Yippee:
+                return (emotion == CharacterEmotion.Delighted);
+
+            default:
+                break;
+        }
+
+        if (expression.getValue() >= 100) {
+            return (emotion == CharacterEmotion.Happy);
+        }
+
+        return false;
+    }
+
+    // Transitions into the modular emotion using the emotion's intro
+    public void transitionToEmotion(final CharacterEmotion emotion)
+    {
+        this.emotion = emotion;
+
+        // Intro into final emotion
+        this.animation.animateWithActionForEmotion(
+                AnimatedAction.Intro,
+                emotion,
+                new CompletionCallback() {
+                    @Override
+                    public void OnCompletion(boolean finished) {
+                        immediateTransitionToEmotion(emotion);
+                    }
+                });
+    }
+
+    // Immediately displays the modular emotion
+    public void immediateTransitionToEmotion(CharacterEmotion emotion)
+    {
+        this.emotion = emotion;
+        this.faceEmotion.setEmotion(emotion);
+
+        // This will notify delegate and call any queued emotions
+        this.animationDidFinish();
     }
 
     private void animationDidStart()

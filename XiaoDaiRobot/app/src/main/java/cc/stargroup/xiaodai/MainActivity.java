@@ -162,6 +162,7 @@ public class MainActivity extends Activity {
                 CharacterExpression expression = CharacterExpression.fromInt(Util.nextRandomInteger(1, CharacterExpression.NUM_EXPRESSIONS - 1));
                 CharacterEmotion emotion = CharacterEmotion.fromInt(Util.nextRandomInteger(1, CharacterEmotion.NUM_EMOTIONS - 1));
                 this.character.setExpressionWithEmotion(expression, emotion);
+                this.character.setEmotion(emotion);
                 return true;
             case (MotionEvent.ACTION_MOVE) :
                 Log.d(TAG,"Action was MOVE");

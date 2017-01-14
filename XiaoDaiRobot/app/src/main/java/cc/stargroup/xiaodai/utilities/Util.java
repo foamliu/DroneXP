@@ -29,7 +29,7 @@ public class Util {
             is.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+
         }
 
         return image;

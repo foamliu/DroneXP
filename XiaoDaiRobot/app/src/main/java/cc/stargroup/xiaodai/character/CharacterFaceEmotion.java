@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 
+import java.io.FileNotFoundException;
+
 import cc.stargroup.xiaodai.utilities.Util;
 import cc.stargroup.xiaodai.widget.UIImageView;
 
@@ -99,7 +101,9 @@ public class CharacterFaceEmotion {
     }
 
     public void drawSelf(Canvas canvas) {
-        canvas.drawBitmap(mouthView.image(), mouthView.left(), mouthView.top(), null);
+        if (mouthView.image() != null) {
+            canvas.drawBitmap(mouthView.image(), mouthView.left(), mouthView.top(), null);
+        }
 
         this.leftEye.drawSelf(canvas);
         this.rightEye.drawSelf(canvas);
