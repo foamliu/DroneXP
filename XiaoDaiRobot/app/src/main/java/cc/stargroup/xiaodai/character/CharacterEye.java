@@ -19,6 +19,7 @@ public class CharacterEye {
 
     private boolean left;
     private float h;
+    private float w;
     private Context appContext;
     private CharacterEmotion emotion;
 
@@ -38,8 +39,8 @@ public class CharacterEye {
         RectF frame = Util.getFrame(context);
         this.rate_w = frame.width() / 640.0f;
         this.rate_h = frame.height() / 960.0f;
-        this.h = (frame.height() - 480 * rate_h) / 2;
-
+        this.h = frame.height() / 2 - 480;
+        this.w = frame.width() / 2 - 320;
     }
 
     public void setLeft(boolean left) {
@@ -57,30 +58,30 @@ public class CharacterEye {
         switch (emotion) {
             case Bewildered:
                 if (left) {
-                    eye.setPosition(32.5f * rate_w, 156.5f * rate_h + h);
+                    eye.setPosition(32.5f * rate_w + w, 156.5f * rate_h + h);
                     pupilCenter = new Point(57f, 27.5f);
                 } else {
-                    eye.setPosition(158.5f * rate_w, 134.0f * rate_h + h);
+                    eye.setPosition(158.5f * rate_w + w, 134.0f * rate_h + h);
                     pupilCenter = new Point(42f, 26.5f);
                 }
                 pupilRadius = 6;
                 break;
             case Curious:
                 if (left) {
-                    eye.setPosition(41.5f * rate_w, 174.5f * rate_h + h);
+                    eye.setPosition(41.5f * rate_w + w, 174.5f * rate_h + h);
                     pupilCenter = new Point(78, 56);
                 } else {
-                    eye.setPosition(170.5f * rate_w, 156.5f * rate_h + h);
+                    eye.setPosition(170.5f * rate_w + w, 156.5f * rate_h + h);
                     pupilCenter = new Point(22, 58);
                 }
                 pupilRadius = 8;
                 break;
             case Excited:
                 if (left) {
-                    eye.setPosition(40.5f * rate_w, 171.5f * rate_h + h);
+                    eye.setPosition(40.5f * rate_w + w, 171.5f * rate_h + h);
                     pupilCenter = new Point(58, 51);
                 } else {
-                    eye.setPosition(171f * rate_w, 162.5f * rate_h + h);
+                    eye.setPosition(171f * rate_w + w, 162.5f * rate_h + h);
                     pupilCenter = new Point(44, 53);
                 }
                 pupilRadius = 19;
@@ -88,40 +89,40 @@ public class CharacterEye {
             case Happy:
             case Delighted:
                 if (left) {
-                    eye.setPosition(40.5f * rate_w, 153.0f * rate_h + h);
+                    eye.setPosition(40.5f * rate_w + w, 153.0f * rate_h + h);
                     pupilCenter = new Point(58f, 48f);
                 } else {
-                    eye.setPosition(171.0f * rate_w, 144.0f * rate_h + h);
+                    eye.setPosition(171.0f * rate_w + w, 144.0f * rate_h + h);
                     pupilCenter = new Point(41f, 48f);
                 }
                 pupilRadius = 26;
                 break;
             case Indifferent:
                 if (left) {
-                    eye.setPosition(46.5f * rate_w, 150.5f * rate_h + h);
+                    eye.setPosition(46.5f * rate_w + w, 150.5f * rate_h + h);
                     pupilCenter = new Point(56.5f, 51);
                 } else {
-                    eye.setPosition(172.0f * rate_w, 147.5f * rate_h + h);
+                    eye.setPosition(172.0f * rate_w + w, 147.5f * rate_h + h);
                     pupilCenter = new Point(35.5f, 54);
                 }
                 pupilRadius = 26;
                 break;
             case Sad:
                 if (left) {
-                    eye.setPosition(40.5f * rate_w, 191.0f * rate_h + h);
-                    pupilCenter = new Point(366, 795);
+                    eye.setPosition(40.5f * rate_w + w, 191.0f * rate_h + h);
+                    pupilCenter = new Point(36.6f, 39.5f);
                 } else {
-                    eye.setPosition(171.0f * rate_w, 185.5f * rate_h + h);
-                    pupilCenter = new Point(437, 798);
+                    eye.setPosition(171.0f * rate_w + w, 185.5f * rate_h + h);
+                    pupilCenter = new Point(43.7f, 39.8f);
                 }
                 pupilRadius = 7;
                 break;
             case Scared:
                 if (left) {
-                    eye.setPosition(40.5f * rate_w, 124.0f * rate_h + h);
+                    eye.setPosition(40.5f * rate_w + w, 124.0f * rate_h + h);
                     pupilCenter = new Point(71, 62);
                 } else {
-                    eye.setPosition(171.5f * rate_w, 115.5f * rate_h + h);
+                    eye.setPosition(171.5f * rate_w + w, 115.5f * rate_h + h);
                     pupilCenter = new Point(30, 61);
                 }
                 pupilRadius = 22;
@@ -129,19 +130,19 @@ public class CharacterEye {
                 break;
             case Sleepy:
                 if (left) {
-                    eye.setPosition(40.5f * rate_w, 164.0f * rate_h + h);
-                    pupilCenter = new Point(272, 20.5f);
+                    eye.setPosition(40.5f * rate_w + w, 164.0f * rate_h + h);
+                    pupilCenter = new Point(55.2f, 20.5f);
                 } else {
-                    eye.setPosition(170.0f * rate_w, 164f * rate_h + h);
-                    pupilCenter = new Point(428, 20.5f);
+                    eye.setPosition(170.0f * rate_w + w, 164f * rate_h + h);
+                    pupilCenter = new Point(42.8f, 20.5f);
                 }
                 pupilRadius = 14;
                 break;
             case Sleeping:
                 if (left) {
-                    eye.setPosition(40.5f * rate_w, 228.0f * rate_h + h);
+                    eye.setPosition(40.5f * rate_w + w, 228.0f * rate_h + h);
                 } else {
-                    eye.setPosition(171.0f * rate_w, 228 * rate_h + h);
+                    eye.setPosition(171.0f * rate_w + w, 228 * rate_h + h);
                 }
                 break;
             default:

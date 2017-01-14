@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.RectF;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +38,9 @@ public class CharacterAnimation {
     private String prefix;
     private int index;
 
+    private float height;
+    private float width;
+
     private Bitmap staticImage;
     private Bitmap image;
 
@@ -46,6 +50,9 @@ public class CharacterAnimation {
         this.appContext = context;
         this.sprite = new UIImageView();
 
+        RectF frame = Util.getFrame(context);
+        this.height = frame.height() / 2 - 480;
+        this.width = frame.width() / 2 - 320;
     }
 
     public void startAnimating() {
@@ -358,7 +365,9 @@ public class CharacterAnimation {
                 float drawX = sourceFrame.x();
                 float drawY = sourceFrame.y();
 
-                canvas.drawBitmap(sprite.image(), new Rect((int) x, (int) y, (int) (x + w), (int) (y + h)), new Rect((int) drawX, (int) drawY, (int) (drawX + w), (int) (drawY + h)), null);
+                canvas.drawBitmap(sprite.image(),
+                        new Rect((int) x, (int) y, (int) (x + w), (int) (y + h)),
+                        new Rect((int) (drawX + width), (int) (drawY + height), (int) (drawX + w + width), (int) (drawY + h + height)), null);
             }
 
         } else {
