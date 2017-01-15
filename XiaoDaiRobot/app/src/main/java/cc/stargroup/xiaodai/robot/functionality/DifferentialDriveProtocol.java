@@ -56,6 +56,6 @@ public interface DifferentialDriveProtocol extends DriveProtocol {
       right motor (where -1.0 indicates fully backwards and 1.0 indicates fully
       forwards).
       */
-     void driveWithLeftMotorPower(float leftMotorPower, float rightMotorPower);
+     void driveWithMotorPower(float leftMotorPower, float rightMotorPower);
 
 }

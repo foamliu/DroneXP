@@ -2,6 +2,7 @@ package cc.stargroup.xiaodai.robot.functionality;
 
 import cc.stargroup.xiaodai.drive.CoreDriveCommand;
 import cc.stargroup.xiaodai.drive.CoreTurnCompletion;
+import cc.stargroup.xiaodai.drive.CoreTurnFinishing;
 import cc.stargroup.xiaodai.drive.CoreTurnFinishingAction;
 
 /**
@@ -208,6 +209,9 @@ public interface DriveProtocol {
                        boolean forceShortestTurn,
                        CoreTurnFinishingAction finishingAction,
                        CoreTurnCompletion completion);
+
+
+    void driveWithHeading(float heading, float power);
 
 
 }

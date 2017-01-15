@@ -4,12 +4,13 @@ import android.util.Log;
 
 import cc.stargroup.xiaodai.MainActivity;
 import cc.stargroup.xiaodai.robot.CoreRobot;
+import cc.stargroup.xiaodai.robot.functionality.DifferentialDriveProtocol;
 
 /**
  * Provides the most fundamental high-level commands
  // needed to control the mobility of a differential drive robot.
  */
-public class DifferentialDrive {
+public class DifferentialDrive implements DifferentialDriveProtocol {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private CoreRobot robot;
@@ -22,12 +23,33 @@ public class DifferentialDrive {
 
     private boolean driving = false;
 
+
+    @Override
+    public CoreMotor leftDriveMotor() {
+        return null;
+    }
+
+    @Override
+    public CoreMotor rightDriveMotor() {
+        return null;
+    }
+
+    /**
+     * Commands robot to drive with symmetric input power while attempting to
+     * to maintain initial heading.
+     *  Power value on the interval [-1., 1.]
+     */
+    public void driveWithPower(float power) {
+
+    }
+
     /**
      * Directly applies voltage to wheel motors propotional to input power level
      * provided.
      *  Values are on the interval [-1.,1.] (-1.= power backwards).
      */
-    public void driveWithPower(float leftMotorPower, float rightMotorPower) {
+    @Override
+    public void driveWithMotorPower(float leftMotorPower, float rightMotorPower) {
         // make sure closed-loop controllers stop trying to control motors
         this.disableClosedLoopControllers();
 
@@ -40,15 +62,6 @@ public class DifferentialDrive {
         } else {
             this.driving = false;
         }
-    }
-
-    /**
-     * Commands robot to drive with symmetric input power while attempting to
-     * to maintain initial heading.
-     *  Power value on the interval [-1., 1.]
-     */
-    public void driveWithPower(float power) {
-
     }
 
     // drive on given heading at input power
@@ -108,6 +121,66 @@ public class DifferentialDrive {
     }
 
     private void disableClosedLoopControllers() {
+
+    }
+
+    @Override
+    public boolean isDriving() {
+        return false;
+    }
+
+    @Override
+    public float speed() {
+        return 0;
+    }
+
+    @Override
+    public CoreDriveCommand driveCommand() {
+        return null;
+    }
+
+    @Override
+    public void driveForwardWithSpeed(float speed) {
+
+    }
+
+    @Override
+    public void driveBackwardWithSpeed(float speed) {
+
+    }
+
+    @Override
+    public void stopDriving() {
+
+    }
+
+    @Override
+    public void driveWithRadius(float radius, float speed) {
+
+    }
+
+    @Override
+    public void turnByAngle(float angle, float radius, CoreTurnCompletion completion) {
+
+    }
+
+    @Override
+    public void turnByAngle(float angle, float radius, CoreTurnFinishingAction finishingAction, CoreTurnCompletion completion) {
+
+    }
+
+    @Override
+    public void turnByAngle(float angle, float radius, float speed, CoreTurnFinishingAction finishingAction, CoreTurnCompletion completion) {
+
+    }
+
+    @Override
+    public void turnToHeading(float targetHeading, float radius, CoreTurnFinishingAction finishingAction, CoreTurnCompletion completion) {
+
+    }
+
+    @Override
+    public void turnToHeading(float targetHeading, float radius, float speed, boolean forceShortestTurn, CoreTurnFinishingAction finishingAction, CoreTurnCompletion completion) {
 
     }
 }

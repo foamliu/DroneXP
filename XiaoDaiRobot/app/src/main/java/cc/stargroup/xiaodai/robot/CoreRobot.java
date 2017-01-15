@@ -4,6 +4,7 @@ import cc.stargroup.xiaodai.MainActivity;
 import cc.stargroup.xiaodai.drive.CoreDriveCommand;
 import cc.stargroup.xiaodai.drive.CoreMotor;
 import cc.stargroup.xiaodai.drive.CoreTurnCompletion;
+import cc.stargroup.xiaodai.drive.CoreTurnFinishing;
 import cc.stargroup.xiaodai.drive.CoreTurnFinishingAction;
 import cc.stargroup.xiaodai.drive.DifferentialDrive;
 import cc.stargroup.xiaodai.robot.functionality.Acceleration;
@@ -195,6 +196,8 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
         return null;
     }
 
+    // DriveProtocol Methods
+
     @Override
     public CoreMotor leftDriveMotor() {
         return leftDriveMotor;
@@ -203,6 +206,21 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
     @Override
     public CoreMotor rightDriveMotor() {
         return rightDriveMotor;
+    }
+
+    @Override
+    public boolean isDriving() {
+        return this.drive.isDriving() || speed == Constants.DRIVE_SPEED_UNKNOWN ;
+    }
+
+    @Override
+    public float speed() {
+        return this.speed;
+    }
+
+    @Override
+    public CoreDriveCommand driveCommand() {
+        return driveCommand;
     }
 
     @Override
@@ -219,67 +237,111 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
     }
 
     @Override
-    public void driveWithLeftMotorPower(float leftMotorPower, float rightMotorPower) {
+    public void driveWithMotorPower(float leftMotorPower, float rightMotorPower) {
+        if (leftMotorPower != 0 || rightMotorPower != 0) {
+            speed = Constants.DRIVE_SPEED_UNKNOWN;
+        } else {
+            speed = 0.0f;
+        }
+        this.drive.driveWithMotorPower(leftMotorPower, rightMotorPower);
 
-    }
-
-    @Override
-    public boolean isDriving() {
-        return false;
-    }
-
-    @Override
-    public float speed() {
-        return 0;
-    }
-
-    @Override
-    public CoreDriveCommand driveCommand() {
-        return driveCommand;
+        driveCommand = CoreDriveCommand.WithPower;
     }
 
     @Override
     public void driveForwardWithSpeed(float speed) {
+        this.driveWithRadius(Constants.DRIVE_RADIUS_STRAIGHT, speed);
 
+        driveCommand = CoreDriveCommand.Forward;
     }
 
     @Override
     public void driveBackwardWithSpeed(float speed) {
+        this.driveForwardWithSpeed(-speed);
 
-    }
-
-    @Override
-    public void stopDriving() {
-
+        driveCommand = CoreDriveCommand.Backward;
     }
 
     @Override
     public void driveWithRadius(float radius, float speed) {
+        driveCommand = CoreDriveCommand.WithRadius;
+        this.speed = speed;
 
+        this.drive.driveWithRadius(radius, speed);
+    }
+
+    @Override
+    public void driveWithHeading(float heading, float power) {
+        if (power != 0) {
+            this.speed = Constants.DRIVE_SPEED_UNKNOWN;
+        } else {
+            this.speed = 0.0f;
+        }
+
+        driveCommand = CoreDriveCommand.WithHeading;
+
+        this.drive.driveWithHeading(heading, power);
     }
 
     @Override
     public void turnByAngle(float angle, float radius, CoreTurnCompletion completion) {
+        this.drive.turnByAngle(angle,
+                                radius,
+                                CoreTurnFinishingAction.StopDriving,
+                                completion);
 
+        driveCommand = CoreDriveCommand.Turn;
     }
 
     @Override
     public void turnByAngle(float angle, float radius, CoreTurnFinishingAction finishingAction, CoreTurnCompletion completion) {
+                                this.drive.turnByAngle(angle,
+                                radius,
+                                finishingAction,
+                                completion);
 
+        driveCommand = CoreDriveCommand.Turn;
     }
 
     @Override
     public void turnByAngle(float angle, float radius, float speed, CoreTurnFinishingAction finishingAction, CoreTurnCompletion completion) {
+        this.drive.turnByAngle(angle,
+                                radius,
+                                speed,
+                                finishingAction,
+                                completion);
 
+        driveCommand = CoreDriveCommand.Turn;
     }
 
     @Override
     public void turnToHeading(float targetHeading, float radius, CoreTurnFinishingAction finishingAction, CoreTurnCompletion completion) {
+        this.drive.turnToHeading(targetHeading,
+                                radius,
+                                finishingAction,
+                                completion);
 
+        driveCommand = CoreDriveCommand.Turn;
     }
 
     @Override
     public void turnToHeading(float targetHeading, float radius, float speed, boolean forceShortestTurn, CoreTurnFinishingAction finishingAction, CoreTurnCompletion completion) {
+        this.drive.turnToHeading(targetHeading,
+                                radius,
+                                speed,
+                                forceShortestTurn,
+                                finishingAction,
+                                completion);
 
+        driveCommand = CoreDriveCommand.Turn;
+    }
+
+    @Override
+    public void stopDriving() {
+        // this sets the motor powers to zero and disables any tracks PID
+        // controllers that may be running.
+        this.driveWithHeading(0, 0);
+
+        driveCommand = CoreDriveCommand.Stop;
     }
 }
