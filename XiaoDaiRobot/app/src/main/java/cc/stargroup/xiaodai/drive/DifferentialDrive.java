@@ -3,6 +3,7 @@ package cc.stargroup.xiaodai.drive;
 import android.util.Log;
 
 import cc.stargroup.xiaodai.MainActivity;
+import cc.stargroup.xiaodai.robot.CoreRobot;
 
 /**
  * Provides the most fundamental high-level commands

@@ -1,6 +1,7 @@
 package cc.stargroup.xiaodai.drive;
 
 import cc.stargroup.xiaodai.MainActivity;
+import cc.stargroup.xiaodai.robot.CoreRobot;
 import cc.stargroup.xiaodai.utilities.Util;
 
 /**
