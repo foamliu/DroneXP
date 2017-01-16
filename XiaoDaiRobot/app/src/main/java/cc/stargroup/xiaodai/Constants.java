@@ -1,4 +1,4 @@
-package cc.stargroup.xiaodai.robot.functionality;
+package cc.stargroup.xiaodai;
 
 /**
  * Created by Foam on 2017/1/16.
@@ -21,6 +21,8 @@ public class Constants {
      Trying to set -robotMotionDataUpdateRate to lower frequencies will be capped here
      */
     public final static int IMU_MIN_UPDATE_FREQUENCY = 1;
+
+    public final static int DEFAULT_GLOBAL_IMU_FREQUENCY = 20; // (Hz) Default IMU sampling frequency
 
     /** Macro defining the radius of infinity */
     public final static float DRIVE_RADIUS_STRAIGHT = 9999f;

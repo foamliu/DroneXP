@@ -1,5 +1,10 @@
 package cc.stargroup.xiaodai.robot.functionality;
 
+import cc.stargroup.xiaodai.sensing.Acceleration;
+import cc.stargroup.xiaodai.sensing.Attitude;
+import cc.stargroup.xiaodai.sensing.Quaternion;
+import cc.stargroup.xiaodai.sensing.RotationRate;
+
 /**
  @brief Protocol that provides access to the iDevice's IMU.
 
@@ -55,7 +60,7 @@ public interface RobotMotionProtocol {
      Attitude of the platform.  Accuracy is depenedent on the platform being on
      level ground when the reference was taken (via takeReferenceAttitude method).
      */
-    CoreAttitude platformAttitude();
+    Attitude platformAttitude();
 
     /**
      iDevice's raw accelerometer data.
@@ -80,10 +85,10 @@ public interface RobotMotionProtocol {
     /**
      Angular rotation rate of the iDevice.
      */
-    RotationRate deviceRotationRate();
+    Quaternion deviceRotationRate();
 
     /**
      iDevice's orienatation in space.
      */
-    Quaternion deviceAttitude();
+    Attitude deviceAttitude();
 }

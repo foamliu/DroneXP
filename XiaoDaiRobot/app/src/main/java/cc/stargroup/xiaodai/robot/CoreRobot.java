@@ -4,16 +4,16 @@ import cc.stargroup.xiaodai.MainActivity;
 import cc.stargroup.xiaodai.drive.CoreDriveCommand;
 import cc.stargroup.xiaodai.drive.CoreMotor;
 import cc.stargroup.xiaodai.drive.CoreTurnCompletion;
-import cc.stargroup.xiaodai.drive.CoreTurnFinishing;
 import cc.stargroup.xiaodai.drive.CoreTurnFinishingAction;
 import cc.stargroup.xiaodai.drive.DifferentialDrive;
-import cc.stargroup.xiaodai.robot.functionality.Acceleration;
-import cc.stargroup.xiaodai.robot.functionality.Constants;
-import cc.stargroup.xiaodai.robot.functionality.CoreAttitude;
+import cc.stargroup.xiaodai.sensing.Acceleration;
+import cc.stargroup.xiaodai.Constants;
+import cc.stargroup.xiaodai.sensing.Attitude;
 import cc.stargroup.xiaodai.robot.functionality.DifferentialDriveProtocol;
-import cc.stargroup.xiaodai.robot.functionality.Quaternion;
 import cc.stargroup.xiaodai.robot.functionality.RobotMotionProtocol;
-import cc.stargroup.xiaodai.robot.functionality.RotationRate;
+import cc.stargroup.xiaodai.sensing.Quaternion;
+import cc.stargroup.xiaodai.sensing.RobotMotion;
+import cc.stargroup.xiaodai.sensing.RotationRate;
 
 /**
  @brief An CoreRobot object is a generic representation of a robot. It
@@ -27,6 +27,7 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
     private CoreMotor leftDriveMotor;
     private CoreMotor rightDriveMotor;
     private DifferentialDrive drive;
+    private RobotMotion robotMotion;
 
 
     /**
@@ -139,7 +140,7 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
 
     @Override
     public boolean isRobotMotionReady() {
-        return false;
+        return true;
     }
 
     @Override
@@ -149,7 +150,7 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
 
     @Override
     public boolean takeDeviceReferenceAttitude() {
-        return false;
+        return true;
     }
 
     public float platformYawRate() {
@@ -162,38 +163,38 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
     }
 
     @Override
-    public CoreAttitude platformAttitude() {
+    public Attitude platformAttitude() {
         return null;
     }
 
     @Override
     public Acceleration deviceAccelerometer() {
-        return null;
+        return this.robotMotion.iDevice().accelerometer();
     }
 
     @Override
     public RotationRate deviceGyroscope() {
-        return null;
+        return this.robotMotion.iDevice().gyroscope();
     }
 
     @Override
     public Acceleration deviceAcceleration() {
-        return null;
+        return this.robotMotion.iDevice().deviceAcceleration();
     }
 
     @Override
     public Acceleration deviceGravity() {
-        return null;
+        return this.robotMotion.iDevice().gravity();
     }
 
     @Override
-    public RotationRate deviceRotationRate() {
-        return null;
+    public Quaternion deviceRotationRate() {
+        return this.robotMotion.iDevice().rotationRate();
     }
 
     @Override
-    public Quaternion deviceAttitude() {
-        return null;
+    public Attitude deviceAttitude() {
+        return this.robotMotion.iDevice().attitude();
     }
 
     // DriveProtocol Methods

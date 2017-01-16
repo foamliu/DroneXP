@@ -1,10 +1,10 @@
-package cc.stargroup.xiaodai.robot.functionality;
+package cc.stargroup.xiaodai.sensing;
 
 /**
- @struct CoreAttitude
+ @struct Attitude
  @brief This class is used for storing a (roll, pitch, yaw) attitude triplet.
  */
-public class CoreAttitude {
+public class Attitude {
     /**
      Rotation about axis parallel to direction of forward motion (degrees).
      */
@@ -19,10 +19,10 @@ public class CoreAttitude {
      */
     private float yaw;
 
-    public CoreAttitude(float roll, float pitch, float yaw) {
-        this.roll = roll;
-        this.pitch = pitch;
+    public Attitude(float yaw, float pitch, float roll) {
         this.yaw = yaw;
+        this.pitch = pitch;
+        this.roll = roll;
     }
 
     public float roll() {
