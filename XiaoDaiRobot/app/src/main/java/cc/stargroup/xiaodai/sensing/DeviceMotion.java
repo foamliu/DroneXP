@@ -1,5 +1,7 @@
 package cc.stargroup.xiaodai.sensing;
 
+import android.content.Context;
+
 /**
  @brief An DeviceMotion object stores data from the iDevice's IMU.
 
@@ -8,9 +10,13 @@ package cc.stargroup.xiaodai.sensing;
  */
 public class DeviceMotion {
 
+    private MotionInterface motionInterface;
+    private EnvironmentInterface environmentInterface;
     private IMUData freshIMUData;
 
-    public DeviceMotion() {
+    public DeviceMotion(Context context) {
+        motionInterface = new MotionInterface(context);
+        environmentInterface = new EnvironmentInterface(context);
         freshIMUData = new IMUData();
     }
 
@@ -43,5 +49,16 @@ public class DeviceMotion {
     // the latest packet of IMU data
     public IMUData freshIMUData() {
         return null;
+    }
+
+
+    public void registerListener() {
+        motionInterface.registerListener();
+        environmentInterface.registerListener();
+    }
+
+    public void unregisterListener() {
+        motionInterface.unregisterListener();
+        environmentInterface.unregisterListener();
     }
 }

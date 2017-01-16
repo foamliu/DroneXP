@@ -91,4 +91,7 @@ public interface RobotMotionProtocol {
      iDevice's orienatation in space.
      */
     Attitude deviceAttitude();
+
+    void registerListener();
+    void unregisterListener();
 }

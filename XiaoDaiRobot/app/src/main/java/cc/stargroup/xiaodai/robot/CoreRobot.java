@@ -1,5 +1,7 @@
 package cc.stargroup.xiaodai.robot;
 
+import android.content.Context;
+
 import cc.stargroup.xiaodai.MainActivity;
 import cc.stargroup.xiaodai.drive.CoreDriveCommand;
 import cc.stargroup.xiaodai.drive.CoreMotor;
@@ -64,11 +66,12 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
     private CoreDriveCommand driveCommand;
     private float speed;
 
-    public CoreRobot() {
+    public CoreRobot(Context context) {
         this.leftDriveMotor = new CoreMotor();
         this.rightDriveMotor = new CoreMotor();
 
         this.drive = new DifferentialDrive();
+        this.robotMotion = new RobotMotion(context);
     }
 
 
@@ -195,6 +198,16 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
     @Override
     public Attitude deviceAttitude() {
         return this.robotMotion.iDevice().attitude();
+    }
+
+    @Override
+    public void registerListener() {
+        robotMotion.registerListener();
+    }
+
+    @Override
+    public void unregisterListener() {
+        robotMotion.unregisterListener();
     }
 
     // DriveProtocol Methods

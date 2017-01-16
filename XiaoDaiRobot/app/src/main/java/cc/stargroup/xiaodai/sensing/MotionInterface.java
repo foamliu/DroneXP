@@ -5,6 +5,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
+
+import cc.stargroup.xiaodai.MainActivity;
 
 /**
 // This class is used to access the iDevice's IMU (Intertial Measurement Unit)
@@ -29,8 +32,8 @@ import android.hardware.SensorManager;
 // and are ready to provide data).
  */
 public class MotionInterface implements SensorEventListener {
+    private static final String TAG = MainActivity.class.getSimpleName();
     private SensorManager sensorManager;
-    //private Sensor accelerometer;
 
     private float[] accelerometer = new float[3];   // Acceleration force along the x/y/z axis (including gravity, m/s2).
     private float[] geomagnetic = new float[3];
@@ -40,13 +43,8 @@ public class MotionInterface implements SensorEventListener {
     private float[] orientation = new float[3];
     private float[] rotationRate = new float[4];
 
-    private float mXAxis = 0F; // 向左-1，向右+1
-    private float mYAxis = 0F; // 向上-1，向下+1
-
     public MotionInterface(Context context) {
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-
-        registerListener();
     }
 
     public void registerListener() {
@@ -56,8 +54,6 @@ public class MotionInterface implements SensorEventListener {
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), android.hardware.SensorManager.SENSOR_DELAY_UI);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), android.hardware.SensorManager.SENSOR_DELAY_UI);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), android.hardware.SensorManager.SENSOR_DELAY_UI);
-
-
     }
 
     public void unregisterListener() {
@@ -69,21 +65,27 @@ public class MotionInterface implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             accelerometer = event.values;
+            //Log.d(TAG, String.format("accelerometer: %f, %f, %f", accelerometer[0], accelerometer[1], accelerometer[2]));
         }
         if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             geomagnetic = event.values;
+            //Log.d(TAG, String.format("geomagnetic: %f, %f, %f", geomagnetic[0], geomagnetic[1], geomagnetic[2]));
         }
         if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
             gravity = event.values;
+            //Log.d(TAG, String.format("gravity: %f, %f, %f", gravity[0], gravity[1], gravity[2]));
         }
         if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             gyroscope = event.values;
+            //Log.d(TAG, String.format("gyroscope: %f, %f, %f", gyroscope[0], gyroscope[1], gyroscope[2]));
         }
         if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
             acceleration = event.values;
+            //Log.d(TAG, String.format("acceleration: %f, %f, %f", acceleration[0], acceleration[1], acceleration[2]));
         }
         if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
             rotationRate = event.values;
+            //Log.d(TAG, String.format("rotationRate: %f, %f, %f, %f", rotationRate[0], rotationRate[1], rotationRate[2], rotationRate[3]));
         }
 
         if (accelerometer != null && geomagnetic != null) {

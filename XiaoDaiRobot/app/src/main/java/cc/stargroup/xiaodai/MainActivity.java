@@ -16,6 +16,7 @@ import java.util.Arrays;
 
 import cc.stargroup.xiaodai.character.CharacterEmotion;
 import cc.stargroup.xiaodai.character.CharacterExpression;
+import cc.stargroup.xiaodai.robot.CoreRobot;
 import cc.stargroup.xiaodai.utilities.Util;
 import cc.stargroup.xiaodai.widget.UIMainView;
 
@@ -28,6 +29,7 @@ public class MainActivity extends Activity {
     private RobotController robotController;
     private boolean ledOn = false;
 
+    private CoreRobot robot;
     private cc.stargroup.xiaodai.character.Character character;
 
     @Override
@@ -40,6 +42,7 @@ public class MainActivity extends Activity {
 
         robotController = new RobotController();
         character = new cc.stargroup.xiaodai.character.Character(this);
+        robot = new CoreRobot(this);
 
         UIMainView superview = new UIMainView(this);
         //superview.setCharacter(character);
@@ -57,6 +60,8 @@ public class MainActivity extends Activity {
     public void onResume() {
         super.onResume();
 
+        robot.registerListener();
+
         String address = getIntent().getStringExtra(DeviceList.EXTRA_ADDRESS); //receive the address of the bluetooth device
         if (robotController != null && address != null) {
             robotController.init(address);
@@ -64,9 +69,15 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+
+        robot.unregisterListener();
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
-
     }
 
     @Override

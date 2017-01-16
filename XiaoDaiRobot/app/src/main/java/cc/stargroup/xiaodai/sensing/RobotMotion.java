@@ -1,5 +1,7 @@
 package cc.stargroup.xiaodai.sensing;
 
+import android.content.Context;
+
 /** @file RobotMotion.h
  @brief Private header for Robot Motion module.  This is the central point for
  receiving and distrubuting IMU data.
@@ -14,8 +16,8 @@ public class RobotMotion {
 
     private DeviceMotion iDevice;
 
-    public RobotMotion() {
-        iDevice = new DeviceMotion();
+    public RobotMotion(Context context) {
+        iDevice = new DeviceMotion(context);
     }
 
     /**
@@ -44,4 +46,12 @@ public class RobotMotion {
      Set refresh rate of the RobotMotion module (Hz)
      */
     public float dataUpdateRate;
+
+    public void registerListener() {
+        iDevice.registerListener();
+    }
+
+    public void unregisterListener() {
+        iDevice.unregisterListener();
+    }
 }
