@@ -27,3 +27,6 @@ public:
     char *getName();
     void setName(char c[]);
 };
+
+
+#endif

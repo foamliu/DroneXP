@@ -3,6 +3,7 @@ package cc.stargroup.xiaodai.robot;
 import android.content.Context;
 
 import cc.stargroup.xiaodai.MainActivity;
+import cc.stargroup.xiaodai.communication.RobotCommunication;
 import cc.stargroup.xiaodai.drive.CoreDriveCommand;
 import cc.stargroup.xiaodai.drive.CoreMotor;
 import cc.stargroup.xiaodai.drive.CoreTurnCompletion;
@@ -24,13 +25,13 @@ import cc.stargroup.xiaodai.sensing.RotationRate;
  implementation will be a subclass of CoreRobot.
  */
 public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol {
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = CoreRobot.class.getSimpleName();
 
     private CoreMotor leftDriveMotor;
     private CoreMotor rightDriveMotor;
     private DifferentialDrive drive;
     private RobotMotion robotMotion;
-
+    private RobotCommunication communication;
 
     /**
      The vitals object containing the robot's internal state (e.g., battery level,
@@ -72,6 +73,7 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
 
         this.drive = new DifferentialDrive();
         this.robotMotion = new RobotMotion(context);
+        this.communication = new RobotCommunication();
     }
 
 
@@ -357,5 +359,9 @@ public class CoreRobot implements DifferentialDriveProtocol, RobotMotionProtocol
         this.driveWithHeading(0, 0);
 
         driveCommand = CoreDriveCommand.Stop;
+    }
+
+    public void ping() {
+        communication.sendMessage("Hello");
     }
 }

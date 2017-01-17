@@ -16,7 +16,7 @@ public class DeviceMotion {
 
     public DeviceMotion(Context context) {
         motionInterface = new MotionInterface(context);
-        environmentInterface = new EnvironmentInterface(context);
+        //environmentInterface = new EnvironmentInterface(context);
         freshIMUData = new IMUData();
     }
 
@@ -54,11 +54,11 @@ public class DeviceMotion {
 
     public void registerListener() {
         motionInterface.registerListener();
-        environmentInterface.registerListener();
+        //environmentInterface.registerListener();
     }
 
     public void unregisterListener() {
         motionInterface.unregisterListener();
-        environmentInterface.unregisterListener();
+        //environmentInterface.unregisterListener();
     }
 }

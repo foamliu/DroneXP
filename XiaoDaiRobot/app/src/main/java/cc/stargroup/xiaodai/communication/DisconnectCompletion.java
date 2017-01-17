@@ -5,5 +5,5 @@ package cc.stargroup.xiaodai.communication;
  */
 
 public interface DisconnectCompletion {
-    void OnDisconnect(RobotDataTransport transport, boolean disconnected);
+    void OnDisconnect(RobotDataTransportOld transport, boolean disconnected);
 }

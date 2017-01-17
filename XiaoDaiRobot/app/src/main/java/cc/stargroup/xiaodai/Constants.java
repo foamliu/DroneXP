@@ -38,5 +38,5 @@ public class Constants {
     public final static float MAX_HEADING = 180f;
     public final static float MIN_HEADING = -180f;
 
-
+    public final static float kSendRate = 0.05f;              // 20Hz send rate for all commands
 }

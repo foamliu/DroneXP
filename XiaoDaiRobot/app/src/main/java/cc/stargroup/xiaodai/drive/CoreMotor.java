@@ -16,7 +16,7 @@ import cc.stargroup.xiaodai.utilities.Util;
  - Current draw
  */
 public class CoreMotor {
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = CoreMotor.class.getSimpleName();
     private boolean isOverCurrent = false;
 
     private CoreRobot robot;

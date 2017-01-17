@@ -169,22 +169,24 @@ public class MainActivity extends Activity {
 
         switch(action) {
             case (MotionEvent.ACTION_DOWN) :
-                Log.d(TAG,"Action was DOWN");
+                //Log.d(TAG,"Action was DOWN");
                 CharacterExpression expression = CharacterExpression.fromInt(Util.nextRandomInteger(1, CharacterExpression.NUM_EXPRESSIONS - 1));
                 CharacterEmotion emotion = CharacterEmotion.fromInt(Util.nextRandomInteger(1, CharacterEmotion.NUM_EMOTIONS - 1));
                 this.character.setExpressionWithEmotion(expression, emotion);
                 this.character.setEmotion(emotion);
                 Log.d(TAG,"expression： " + expression.toString());
                 Log.d(TAG,"emotion: " + emotion.toString());
+
+                robot.ping();
                 return true;
             case (MotionEvent.ACTION_MOVE) :
-                Log.d(TAG,"Action was MOVE");
+                //Log.d(TAG,"Action was MOVE");
                 return true;
             case (MotionEvent.ACTION_UP) :
-                Log.d(TAG,"Action was UP");
+                //Log.d(TAG,"Action was UP");
                 return true;
             case (MotionEvent.ACTION_CANCEL) :
-                Log.d(TAG,"Action was CANCEL");
+                //Log.d(TAG,"Action was CANCEL");
                 return true;
             case (MotionEvent.ACTION_OUTSIDE) :
                 Log.d(TAG,"Movement occurred outside bounds " +

@@ -2,21 +2,21 @@ package cc.stargroup.xiaodai.communication;
 
 import cc.stargroup.xiaodai.robot.functionality.RobotCommunicationProtocol;
 
-/**
- * Created by Foam on 2017/1/16.
- */
 
 public class RobotCommunication implements RobotCommunicationProtocol {
+    private static final String TAG = RobotCommunication.class.getSimpleName();
 
     private RobotDataTransport transport;
 
     public RobotCommunication() {
-        transport = new RobotDataTransport();
+        transport = RobotDataTransport.getInstance();
+
+        transport.connect();
+        transport.sendMessage("Hello#");
     }
 
-
-
-
-
+    public void sendMessage(String message) {
+        transport.sendMessage(message + "#");
+    }
 
 }

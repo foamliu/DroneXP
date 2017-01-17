@@ -11,7 +11,7 @@ import cc.stargroup.xiaodai.robot.functionality.DifferentialDriveProtocol;
  // needed to control the mobility of a differential drive robot.
  */
 public class DifferentialDrive implements DifferentialDriveProtocol {
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = DifferentialDrive.class.getSimpleName();
 
     private CoreRobot robot;
 

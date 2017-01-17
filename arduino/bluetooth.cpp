@@ -28,23 +28,27 @@ void Bluetooth::setupBluetooth(){
     delay(1100);
     while (btSerial->available()) 
     Serial.write(btSerial->read());
+    Serial.println("");
 
     btSerial->write(Name);
     delay(1100);
     while (btSerial->available()) 
     Serial.write(btSerial->read());
+    Serial.println("");
 
-    Serial.println("\nAjusting PIN - 6666");
-    btSerial->write("AT+PIN6666");
+    Serial.println("\nAjusting PIN - 1234");
+    btSerial->write("AT+PIN1234");
     delay(1100);
     while (btSerial->available()) 
     Serial.write(btSerial->read());
+    Serial.println("");
 
     Serial.println("\nBluetooth version");
     btSerial->write("AT+VERSION");
     delay(1100);
     while (btSerial->available()) 
     Serial.write(btSerial->read());
+    Serial.println("");
 }
 
 Bluetooth::Bluetooth(char name[]){

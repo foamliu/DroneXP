@@ -2,8 +2,11 @@ package cc.stargroup.xiaodai.character;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+
 import java.io.IOException;
+
 import cc.stargroup.xiaodai.utilities.Util;
 
 /**
@@ -46,56 +49,77 @@ public class CharacterVoice {
     public void setExpression(CharacterExpression expression) {
         this.expression = expression;
         String path = null;
+        AssetFileDescriptor afd;
 
         if (this.initialized) {
-        try {
+            try {
 
-            if (expression == CharacterExpression.Fart) {
-                int randomSound = Util.nextRandomInteger(0, kNumFarts - 1);
-                path = String.format("audio/%d-%02d.mp3", expression.getValue(), randomSound);
-            } else {
-                path = String.format("audio/%d.mp3", expression.getValue());
+                if (expression == CharacterExpression.Fart) {
+                    int randomSound = Util.nextRandomInteger(0, kNumFarts - 1);
+                    path = String.format("audio/%d-%02d.mp3", expression.getValue(), randomSound);
+                } else {
+                    path = String.format("audio/%d.mp3", expression.getValue());
+                }
+
+                afd = this.appContext.getAssets().openFd(path);
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            AssetFileDescriptor afd = this.appContext.getAssets().openFd(path);
-            MediaPlayer mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         }
     }
 
     public void mumbleWithUtterance(String utterance) {
         int randomSound = Util.nextRandomInteger(0, kNumMumbles - 1);
         String path = String.format("audio/mumbles/mumble%d.mp3", randomSound);
-        AssetFileDescriptor afd = null;
+        AssetFileDescriptor afd;
+        MediaPlayer mediaPlayer = null;
+
         try {
             afd = this.appContext.getAssets().openFd(path);
-            MediaPlayer mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
             mediaPlayer.prepare();
             mediaPlayer.start();
+
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (mediaPlayer != null) {
+                mediaPlayer.reset();
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
         }
     }
 
     public void makeBlinkSound() {
         int randomSound = Util.nextRandomInteger(0, kNumBlinks - 1);
         String path = String.format("audio/blinks/Creature-Blink-%d.mp3", randomSound);
-        AssetFileDescriptor afd = null;
+        AssetFileDescriptor afd;
+        MediaPlayer mediaPlayer = null;
+
         try {
             afd = this.appContext.getAssets().openFd(path);
-            MediaPlayer mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
             mediaPlayer.prepare();
             mediaPlayer.start();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (mediaPlayer != null) {
+                mediaPlayer.reset();
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
         }
     }
 
