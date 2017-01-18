@@ -2,7 +2,6 @@ package cc.stargroup.xiaodai.communication;
 
 import cc.stargroup.xiaodai.drive.CoreCommand;
 import cc.stargroup.xiaodai.drive.CoreMotorAxis;
-import cc.stargroup.xiaodai.drive.MotorCommandType;
 import cc.stargroup.xiaodai.robot.functionality.RobotCommunicationProtocol;
 
 
