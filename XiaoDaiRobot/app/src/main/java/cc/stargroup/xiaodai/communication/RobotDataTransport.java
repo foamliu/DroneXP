@@ -17,6 +17,8 @@ import java.util.UUID;
 public class RobotDataTransport extends Thread {
     private static final String TAG = RobotDataTransport.class.getSimpleName();
 
+    public final static float kSendRate = 0.05f;              // 20Hz send rate for all commands
+
     private BluetoothAdapter mBlueAdapter = null;
     private BluetoothSocket mBlueSocket = null;
     private BluetoothDevice mBlueRobot = null;
@@ -113,6 +115,9 @@ public class RobotDataTransport extends Thread {
     public void run() {
 
         while (true) {
+
+            long start = System.currentTimeMillis();
+
             if (connected) {
                 try {
                     byte ch, buffer[] = new byte[1024];
@@ -131,8 +136,20 @@ public class RobotDataTransport extends Thread {
                 } catch (IOException e) {
                     Log.e(TAG, "->[#]Failed to receive message: " + e.getMessage());
                 }
-
             }
+
+            long end = System.currentTimeMillis();
+            long elapsed = end - start;
+            long cycle = (long)(kSendRate * 1000);
+
+            if (elapsed < cycle) {
+                try {
+                    Thread.sleep(cycle - elapsed);
+                } catch (InterruptedException ex) {
+                    Log.d(TAG, ex.getMessage());
+                }
+            }
+
         }
     }
 
@@ -150,7 +167,7 @@ public class RobotDataTransport extends Thread {
         }
     }
 
-    public boolean hasMensagem(int i) {
+    public boolean hasMessage(int i) {
         try {
             String s = mMessages.get(i);
             if (s.length() > 0)
@@ -162,7 +179,7 @@ public class RobotDataTransport extends Thread {
         }
     }
 
-    public String getMenssage(int i) {
+    public String getMessage(int i) {
         return mMessages.get(i);
     }
 
@@ -191,6 +208,18 @@ public class RobotDataTransport extends Thread {
             Log.e(TAG, "->[#]Error while sending message: " + e.getMessage());
         }
     }
+
+    public void send(byte[] data) {
+        try {
+            if (connected) {
+                mOut.write(data);
+            }
+
+        } catch (IOException e) {
+            Log.e(TAG, "->[#]Error while sending data: " + e.getMessage());
+        }
+    }
+
 
 
 }
