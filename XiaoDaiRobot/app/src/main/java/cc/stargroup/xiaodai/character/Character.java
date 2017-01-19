@@ -70,6 +70,7 @@ public class Character {
 
     private CharacterFace face;
     private CharacterVoice voice;
+    private CharacterPNS pns;
 
     private Context appContext;
 
@@ -80,6 +81,8 @@ public class Character {
         this.face = new CharacterFace(context, CharacterType.XiaoDaiRobot);
         this.face.setEmotion(CharacterEmotion.Sleepy);
         //this.face.setExpressionWithEmotion(CharacterExpression.Angry, CharacterEmotion.Sleepy);
+
+        this.pns = new CharacterPNS();
 
         this.leftEyeOpen = this.rightEyeOpen = true;
 
