@@ -3,6 +3,7 @@ package cc.stargroup.xiaodai.character;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
@@ -364,10 +365,22 @@ public class CharacterAnimation {
                 float y = frame.y();
                 float drawX = sourceFrame.x();
                 float drawY = sourceFrame.y();
+                boolean rotated = jsonFrame.rotated();
 
-                canvas.drawBitmap(sprite.image(),
-                        new Rect((int) x, (int) y, (int) (x + w), (int) (y + h)),
-                        new Rect((int) (drawX + width), (int) (drawY + height), (int) (drawX + w + width), (int) (drawY + h + height)), null);
+                if (rotated) {
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(-90);
+                    Bitmap rotatedBitmap = Bitmap.createBitmap(sprite.image(), (int) x, (int) y, (int) h, (int) w, matrix, true);
+                    canvas.drawBitmap(rotatedBitmap,
+                            new Rect(0, 0, (int) w, (int) h),
+                            new Rect((int) (drawX + width), (int) (drawY + height), (int) (drawX + w + width), (int) (drawY + h + height)), null);
+
+                } else {
+                    canvas.drawBitmap(sprite.image(),
+                            new Rect((int) x, (int) y, (int) (x + w), (int) (y + h)),
+                            new Rect((int) (drawX + width), (int) (drawY + height), (int) (drawX + w + width), (int) (drawY + h + height)), null);
+
+                }
             }
 
         } else {
