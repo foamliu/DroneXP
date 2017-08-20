@@ -40,7 +40,7 @@ public class RobotController {
         {
             try
             {
-                btSocket.getOutputStream().write("0".toString().getBytes());
+                btSocket.getOutputStream().write("A".toString().getBytes());
             }
             catch (IOException e)
             {
@@ -55,7 +55,7 @@ public class RobotController {
         {
             try
             {
-                btSocket.getOutputStream().write("1".toString().getBytes());
+                btSocket.getOutputStream().write("F".toString().getBytes());
             }
             catch (IOException e)
             {

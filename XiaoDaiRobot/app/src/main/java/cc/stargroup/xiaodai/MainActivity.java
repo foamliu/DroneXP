@@ -170,12 +170,16 @@ public class MainActivity extends Activity {
         switch(action) {
             case (MotionEvent.ACTION_DOWN) :
                 //Log.d(TAG,"Action was DOWN");
-                CharacterExpression expression = CharacterExpression.fromInt(Util.nextRandomInteger(1, CharacterExpression.NUM_EXPRESSIONS - 1));
-                CharacterEmotion emotion = CharacterEmotion.fromInt(Util.nextRandomInteger(1, CharacterEmotion.NUM_EMOTIONS - 1));
-                this.character.setExpressionWithEmotion(expression, emotion);
-                this.character.setEmotion(emotion);
-                Log.d(TAG,"expression： " + expression.toString());
-                Log.d(TAG,"emotion: " + emotion.toString());
+                //CharacterExpression expression = CharacterExpression.fromInt(Util.nextRandomInteger(1, CharacterExpression.NUM_EXPRESSIONS - 1));
+                //CharacterEmotion emotion = CharacterEmotion.fromInt(Util.nextRandomInteger(1, CharacterEmotion.NUM_EMOTIONS - 1));
+                //this.character.setExpressionWithEmotion(expression, emotion);
+                //this.character.setEmotion(emotion);
+                //Log.d(TAG,"expression： " + expression.toString());
+                //Log.d(TAG,"emotion: " + emotion.toString());
+
+                this.character.setEmotion(CharacterEmotion.Curious);
+                //this.character.setExpressionWithEmotion(CharacterExpression.Sleepy, CharacterEmotion.Sleeping);
+                this.character.setExpressionWithEmotion(CharacterExpression.Curious, CharacterEmotion.Curious);
 
                 robot.ping();
                 return true;
