@@ -12,7 +12,7 @@
     <string name="weather">报天气</string>
     <string name="recognize">语音识别</string>
     <string name="deviceList">设备列表</string>
-    <string name="toggleLed">拨动 LED 灯</string>
+    <string name="carControl">小车控制</string>
     <string name="pairedDevices">已配对的设备</string>
 
 
@@ -80,4 +80,7 @@
         <item>100020, 收音机指令</item>
         <item>100021, 命令词</item>
     </string-array>
+    <string name="title_activity_controller">小车控制</string>
+    <string name="title_activity_perception">环境感知</string>
+    <string name="title_activity_computer_vision">机器视觉</string>
 </resources>

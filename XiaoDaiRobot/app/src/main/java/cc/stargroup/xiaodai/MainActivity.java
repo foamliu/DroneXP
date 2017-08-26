@@ -17,7 +17,6 @@ import java.util.Arrays;
 import cc.stargroup.xiaodai.character.CharacterEmotion;
 import cc.stargroup.xiaodai.character.CharacterExpression;
 import cc.stargroup.xiaodai.robot.CoreRobot;
-import cc.stargroup.xiaodai.utilities.Util;
 import cc.stargroup.xiaodai.widget.UIMainView;
 
 import static android.speech.SpeechRecognizer.RESULTS_RECOGNITION;
@@ -26,8 +25,6 @@ public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private SpeechManager speechManager;
-    private RobotController robotController;
-    private boolean ledOn = false;
 
     private CoreRobot robot;
     private cc.stargroup.xiaodai.character.Character character;
@@ -40,7 +37,6 @@ public class MainActivity extends Activity {
         speechManager.initSynthesizer();
         speechManager.initRecognizer();
 
-        robotController = new RobotController();
         character = new cc.stargroup.xiaodai.character.Character(this);
         robot = new CoreRobot(this);
 
@@ -61,11 +57,6 @@ public class MainActivity extends Activity {
         super.onResume();
 
         robot.registerListener();
-
-        String address = getIntent().getStringExtra(DeviceList.EXTRA_ADDRESS); //receive the address of the bluetooth device
-        if (robotController != null && address != null) {
-            robotController.init(address);
-        }
     }
 
     @Override
@@ -89,30 +80,38 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent i;
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.weather:
                 speechManager.doWeather();
                 return true;
+
             case R.id.recognize:
                 start();
                 return true;
-            case R.id.deviceList:
+
+            case R.id.carControl:
                 // Make an intent to start next activity.
-                Intent i = new Intent(MainActivity.this, DeviceList.class);
+                i = new Intent(MainActivity.this, ControllerActivity.class);
                 //Change the activity.
                 startActivity(i);
                 return true;
 
-            case R.id.toggleLed:
-                if (ledOn) {
-                    robotController.turnOffLed();
-                    ledOn = false;
-                } else {
-                    robotController.turnOnLed();
-                    ledOn = true;
-                }
+            case R.id.computer_vision:
+                // Make an intent to start next activity.
+                i = new Intent(MainActivity.this, ComputerVisionActivity.class);
+                //Change the activity.
+                startActivity(i);
                 return true;
+
+            case R.id.perception:
+                // Make an intent to start next activity.
+                i = new Intent(MainActivity.this, PerceptionActivity.class);
+                //Change the activity.
+                startActivity(i);
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

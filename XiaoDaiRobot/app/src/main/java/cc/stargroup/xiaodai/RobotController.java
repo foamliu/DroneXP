@@ -34,7 +34,7 @@ public class RobotController {
         new ConnectBT().execute(); //Call the class to connect
     }
 
-    public void turnOffLed()
+    public void forward()
     {
         if (btSocket!=null)
         {
@@ -49,13 +49,85 @@ public class RobotController {
         }
     }
 
-    public void turnOnLed()
+    public void backward()
+    {
+        if (btSocket!=null)
+        {
+            try
+            {
+                btSocket.getOutputStream().write("B".toString().getBytes());
+            }
+            catch (IOException e)
+            {
+                Log.e(TAG, "Error");
+            }
+        }
+    }
+
+    public void left()
+    {
+        if (btSocket!=null)
+        {
+            try
+            {
+                btSocket.getOutputStream().write("C".toString().getBytes());
+            }
+            catch (IOException e)
+            {
+                Log.e(TAG, "Error");
+            }
+        }
+    }
+
+    public void right()
+    {
+        if (btSocket!=null)
+        {
+            try
+            {
+                btSocket.getOutputStream().write("D".toString().getBytes());
+            }
+            catch (IOException e)
+            {
+                Log.e(TAG, "Error");
+            }
+        }
+    }
+    public void stop()
+    {
+        if (btSocket!=null)
+        {
+            try
+            {
+                btSocket.getOutputStream().write("E".toString().getBytes());
+            }
+            catch (IOException e)
+            {
+                Log.e(TAG, "Error");
+            }
+        }
+    }
+    public void spin_left()
     {
         if (btSocket!=null)
         {
             try
             {
                 btSocket.getOutputStream().write("F".toString().getBytes());
+            }
+            catch (IOException e)
+            {
+                Log.e(TAG, "Error");
+            }
+        }
+    }
+    public void spin_right()
+    {
+        if (btSocket!=null)
+        {
+            try
+            {
+                btSocket.getOutputStream().write("G".toString().getBytes());
             }
             catch (IOException e)
             {

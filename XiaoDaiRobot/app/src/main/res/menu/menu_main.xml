@@ -4,8 +4,10 @@
         android:title="@string/weather" />
     <item android:id="@+id/recognize"
         android:title="@string/recognize" />
-    <item android:id="@+id/deviceList"
-        android:title="@string/deviceList" />
-    <item android:id="@+id/toggleLed"
-        android:title="@string/toggleLed" />
+    <item android:id="@+id/carControl"
+        android:title="@string/carControl" />
+    <item android:id="@+id/computer_vision"
+        android:title="机器视觉" />
+    <item android:id="@+id/perception"
+        android:title="环境感知" />
 </menu>
