@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="opentok-android-sdk-2.10.1-REL-2782">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.opentok.android/opentok-android-sdk/2.10.1-REL-2782/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.opentok.android/opentok-android-sdk/2.10.1-REL-2782/jars/libs/libjingle_peerconnection_java.jar!/" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.opentok.android/opentok-android-sdk/2.10.1-REL-2782/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
